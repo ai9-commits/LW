@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>速度計算ツール</title>
+<style>
+  body { font-family: sans-serif; padding: 10px; max-width: 600px; margin: auto; }
+  h3 { margin-bottom:4px;}
+  label { display: block; margin-top: 4px; }
+  input { margin: 2px; }
+  input#dA { width: 2em;}
+  input#dB { width: 2em;}
+  input#speedB { width: 6em;}
+  button { margin-top: 12px; padding: 6px 12px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { border: 1px solid #999; padding: 4px; text-align: center; }
+  td.diff { font-size: small; color: #ff1e1e; }
+  th { background-color: #f0f0f0; }
+  .result { margin-top: 12px; }
+</style>
+</head>
+<body>
+<h2>時間計算ツール</h2>
+
+<h3>元の所要時間</h3>
+<label> <input type="number" id="dA" step="1" value="0">d<input type="time" id="hmsA" step="1" value="00:00:00"></label>
+
+<h3>現在の所要時間か速度のどちらか入力</h3>
+<label> <input type="number" id="dB" step="1" value="0">d<input type="time" id="hmsB" step="1" value="00:00:00"></label>
+<label>速度: <input type="number" id="speedB" step="any" value=""></label>
+<small>※所要時間と速度の両方が入力された場合は速度が優先されます</small>
+<!--
+<h3>任意追加速度</h3>
+<label>速度: <input type="number" id="deltaCustom" step="any" value="0"></label>
+-->
+<button onclick="calculate()">計算する</button>
+
+<div class="result">
+  <p>現在の速度: <span id="displaySpeedB">---</span></p>
+</div>
+
+<table id="resultTable">
+  <thead>
+    <tr>
+      <th>加速(%)</th>
+      <th>所要時間</th>
+      <th>短縮効果</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- 計算結果がここに入る -->
+  </tbody>
+</table>
+
+<script>
+function timeToSeconds(d, hmsStr){
+  const [h,m,s] = hmsStr.split(":").map(Number);
+  return (d || 0)*86400 + h*3600 + m*60 + s;
+}
+
+// 1d 11:22:33形式で表示
+function secondsToCompactDHMS(sec){
+  const d = Math.floor(sec / 86400);
+  sec %= 86400;
+  const h = Math.floor(sec / 3600);
+  sec %= 3600;
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function calculate(){
+  const dA = parseInt(document.getElementById("dA").value) || 0;
+  const hmsA = document.getElementById("hmsA").value || "00:00:00";
+  const secondsA = timeToSeconds(dA, hmsA);
+
+  const dB = document.getElementById("dB").value;
+  const hmsB = document.getElementById("hmsB").value;
+  let secondsB = null;
+  let speedB = parseFloat(document.getElementById("speedB").value) || null;
+  const speedA = 100;
+  //const deltaCustom = parseFloat(document.getElementById("deltaCustom").value) || 0;
+
+  // Bの所要時間優先
+  if(speedB && speedB > 0){
+    secondsB = secondsA * (speedA / speedB);
+  } else if(dB !== "" && hmsB){
+    secondsB = timeToSeconds(parseInt(dB), hmsB);
+    if(secondsB <= 0){ alert("現在の所要時間は0秒以上にしてください"); return; }
+    speedB = speedA * (secondsA / secondsB);
+  } else if(speedB && speedB > 0){
+    secondsB = secondsA * (speedA / speedB);
+  } else {
+  //  alert("Bの所要時間か速度のどちらかを入力してください");
+    alert("現在の所要時間を入力してください");
+    return;
+  }
+
+  // Bの速度表示
+  document.getElementById("displaySpeedB").textContent = speedB.toFixed(2);
+
+  // 足す速度計算
+  //const deltas = [20,25,50,60, deltaCustom];
+  //const deltaLabels = ["20","25","50","60","任意"];
+  const deltas = [20,25,50,60];
+  const deltaLabels = ["20","25","50","60"];
+
+  const tbody = document.querySelector("#resultTable tbody");
+  tbody.innerHTML = ""; // 初期化
+
+  deltas.forEach((delta,i)=>{
+    const newTime = secondsB * (speedB / (speedB + delta));
+    const diff = secondsB - newTime;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${deltaLabels[i]}</td>
+      <td>${secondsToCompactDHMS(newTime)}</td>
+      <td class="diff">${secondsToCompactDHMS(diff)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
