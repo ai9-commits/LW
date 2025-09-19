@@ -12,6 +12,7 @@
   input { margin: 2px; }
   input#dA { width: 1.5em;}
   input#dB { width: 1.5em;}
+  input#deltaCustom { width: 2em;}
   input#speedB { width: 6em;}
   button { font-size: large; margin-top: 1em; padding: 0.5em 1em;}
   table { border-collapse: collapse; margin-top: 0.5em; overflow-x: auto; max-width:95%;}
@@ -90,7 +91,7 @@ function calculate(){
   //let speedB = parseFloat(document.getElementById("speedB").value) || null;
   let speedB = 0;
   const speedA = 100;
-  //const deltaCustom = parseFloat(document.getElementById("deltaCustom").value) || 0;
+  const deltaCustom = parseFloat(document.getElementById("deltaCustom").value) || 0;
 
   // Bの所要時間優先
   if(speedB && speedB > 0){
@@ -112,7 +113,7 @@ function calculate(){
 
   // 足す速度計算
   const deltas = [20,25,50, deltaCustom];
-  const deltaLabels = ["20","25","50","任意"];
+  const deltaLabels = ["20","25","50",deltaCustom];
   //const deltas = [20,25,50,60];
   //const deltaLabels = ["20","25","50","60"];
 
