@@ -58,7 +58,13 @@ function timeToSeconds(d, hmsStr){
   const [h,m,s] = hmsStr.split(":").map(Number);
   return (d || 0)*86400 + h*3600 + m*60 + s;
 }
-
+// "hh:mm" 形式なら ":00" を追加
+function normalizeTime(value) {
+  if (/^\d{2}:\d{2}$/.test(value)) {
+    return value + ":00";
+  }
+  return value;
+}
 // 1d 11:22:33形式で表示
 function secondsToCompactDHMS(sec){
   const d = Math.floor(sec / 86400);
@@ -72,11 +78,13 @@ function secondsToCompactDHMS(sec){
 
 function calculate(){
   const dA = parseInt(document.getElementById("dA").value) || 0;
-  const hmsA = document.getElementById("hmsA").value || "00:00:00";
+  const hmsAraw = document.getElementById("hmsA").value || "00:00:00";
+  const hmsA = normalizeTime(hmsAraw) || "00:00:00";
   const secondsA = timeToSeconds(dA, hmsA);
 
   const dB = document.getElementById("dB").value;
-  const hmsB = document.getElementById("hmsB").value;
+  const hmsBraw = document.getElementById("hmsB").value;
+  const hmsB = normalizeTime(hmsBraw) || "00:00:00";
   let secondsB = null;
   let speedB = parseFloat(document.getElementById("speedB").value) || null;
   const speedA = 100;
