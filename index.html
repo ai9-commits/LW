@@ -26,11 +26,24 @@
 <h2>時間計算ツール</h2>
 
 <h3>元の所要時間</h3>
-<label> <input type="number" id="dA" step="1" value="">d<input type="time" id="hmsA" step="1" value="00:00:00"></label>
+<!--<label> <input type="number" id="dA" step="1" value="">d<input type="time" id="hmsA" step="1" value="00:00:00"></label>-->
+<label>
+  <button type="button" onclick="dA.value=Math.max(0,+dA.value-1)">−</button>
+  <input type="number" id="dA" step="1" value="">
+  <button type="button" onclick="dA.value=+dA.value+1">＋</button>
+  d<input type="time" id="hmsA" step="1" value="00:00:00">
+</label>
 
 <!--<h3>現在の所要時間か速度のどちらか入力</h3>-->
 <h3>現在の所要時間</h3>
-<label> <input type="number" id="dB" step="1" value="">d<input type="time" id="hmsB" step="1" value="00:00:00"></label>
+<!--<label> <input type="number" id="dB" step="1" value="">d<input type="time" id="hmsB" step="1" value="00:00:00"></label>-->
+<label>
+  <button type="button" onclick="dB.value=Math.max(0,+dB.value-1)">−</button>
+  <input type="number" id="dB" step="1" value="">
+  <button type="button" onclick="dB.value=+dB.value+1">＋</button>
+  d<input type="time" id="hmsB" step="1" value="00:00:00">
+</label>
+  
 <!--<label>速度: <input type="number" id="speedB" step="any" value=""></label>
 <small>※所要時間と速度の両方を入力した場合、<br>&nbsp速度を優先して計算します</small>-->
 
