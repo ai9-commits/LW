@@ -9,10 +9,10 @@
   h3 { margin-bottom:4px;}
   label { display: block; margin-top: 4px; }
   input { margin: 2px; }
-  input#dA { width: 2em;}
-  input#dB { width: 2em;}
+  input#dA { width: 1.5em;}
+  input#dB { width: 1.5em;}
   input#speedB { width: 6em;}
-  button { margin-top: 12px; padding: 6px 12px; }
+  button { font-size: large; margin-top: 10px; padding: 6px 10px;}
   table { width: 100%; border-collapse: collapse; margin-top: 12px; }
   th, td { border: 1px solid #999; padding: 4px; text-align: center; }
   td.diff { font-size: small; color: #ff1e1e; }
@@ -24,17 +24,17 @@
 <h2>時間計算ツール</h2>
 
 <h3>元の所要時間</h3>
-<label> <input type="number" id="dA" step="1" value="0">d<input type="time" id="hmsA" step="1" value="00:00:00"></label>
+<label> <input type="number" id="dA" step="1" value="">d<input type="time" id="hmsA" step="1" value="00:00:00"></label>
 
 <h3>現在の所要時間か速度のどちらか入力</h3>
-<label> <input type="number" id="dB" step="1" value="0">d<input type="time" id="hmsB" step="1" value="00:00:00"></label>
+<label> <input type="number" id="dB" step="1" value="">d<input type="time" id="hmsB" step="1" value="00:00:00"></label>
 <label>速度: <input type="number" id="speedB" step="any" value=""></label>
-<small>※所要時間と速度の両方が入力された場合は速度が優先されます</small>
+<small>※所要時間と速度の両方を入力した場合、<br>&nbsp速度を優先して計算します</small>
 <!--
 <h3>任意追加速度</h3>
 <label>速度: <input type="number" id="deltaCustom" step="any" value="0"></label>
 -->
-<button onclick="calculate()">計算する</button>
+<label></label><button onclick="calculate()">計算する</button></label>
 
 <div class="result">
   <p>現在の速度: <span id="displaySpeedB">---</span></p>
