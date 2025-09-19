@@ -22,7 +22,7 @@
 </style>
 </head>
 <body>
-<h2>時間計算ツール0.07</h2>
+<h2>時間計算ツール0.08</h2>
 
 <h3>元の所要時間</h3>
 <label> <input type="number" id="dA" step="1" value="">d<input type="time" id="hmsA" step="1" value="00:00:00"></label>
@@ -88,7 +88,8 @@ function calculate(){
   const hmsBraw = document.getElementById("hmsB").value;
   const hmsB = normalizeTime(hmsBraw) || "00:00:00";
   let secondsB = timeToSeconds(dB, hmsB);
-  let speedB = parseFloat(document.getElementById("speedB").value) || null;
+  //let speedB = parseFloat(document.getElementById("speedB").value) || null;
+  let speedB = 0;
   const speedA = 100;
   //const deltaCustom = parseFloat(document.getElementById("deltaCustom").value) || 0;
 
