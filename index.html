@@ -22,7 +22,7 @@
 </style>
 </head>
 <body>
-<h2>時間計算ツール0.08</h2>
+<h2>時間計算ツール0.09</h2>
 
 <h3>元の所要時間</h3>
 <label> <input type="number" id="dA" step="1" value="">d<input type="time" id="hmsA" step="1" value="00:00:00"></label>
@@ -32,10 +32,9 @@
 <label> <input type="number" id="dB" step="1" value="">d<input type="time" id="hmsB" step="1" value="00:00:00"></label>
 <!--<label>速度: <input type="number" id="speedB" step="any" value=""></label>
 <small>※所要時間と速度の両方を入力した場合、<br>&nbsp速度を優先して計算します</small>-->
-<!--
-<h3>任意追加速度</h3>
-<label>速度: <input type="number" id="deltaCustom" step="any" value="0"></label>
--->
+
+<h3>任意の加速速度</h3>
+<label>速度％: <input type="number" id="deltaCustom" step="any" value="0"></label>
 <label></label><button onclick="calculate()">計算する</button></label>
 
 <div class="result">
@@ -45,7 +44,7 @@
 <table id="resultTable">
   <thead>
     <tr>
-      <th>加速(%)</th>
+      <th>加速</th>
       <th>所要時間</th>
       <th>短縮効果</th>
     </tr>
@@ -112,10 +111,10 @@ function calculate(){
   document.getElementById("displaySpeedB").textContent = speedB.toFixed(2);
 
   // 足す速度計算
-  //const deltas = [20,25,50,60, deltaCustom];
-  //const deltaLabels = ["20","25","50","60","任意"];
-  const deltas = [20,25,50,60];
-  const deltaLabels = ["20","25","50","60"];
+  const deltas = [20,25,50, deltaCustom];
+  const deltaLabels = ["20","25","50","任意"];
+  //const deltas = [20,25,50,60];
+  //const deltaLabels = ["20","25","50","60"];
 
   const tbody = document.querySelector("#resultTable tbody");
   tbody.innerHTML = ""; // 初期化
