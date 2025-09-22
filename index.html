@@ -127,12 +127,13 @@ function calculate(){
     alert("現在の所要時間を入力してください");
     return;
   }
+  const speedB_fixed = parseFloat(speedB.toFixed(2));
   gtag('event', 'calc_execute', {
       event_category: 'button',
       event_label: 'calcButton',
       durationA_seconds: secondsA,
       durationB_seconds: secondsB,
-      speedB: speedB.toFixed(2)
+      speedB: speedB_fixed
   });
   // Bの速度表示
   document.getElementById("displaySpeedB").textContent = speedB.toFixed(2);
