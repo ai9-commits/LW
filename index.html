@@ -131,8 +131,8 @@ function calculate(){
       event_category: 'button',
       event_label: 'calcButton',
       durationA_seconds: secondsA,
-      durationB_seconds: econdsB,
-      speedB: speedB
+      durationB_seconds: secondsB,
+      speedB: speedB.toFixed(2)
   });
   // Bの速度表示
   document.getElementById("displaySpeedB").textContent = speedB.toFixed(2);
@@ -161,7 +161,7 @@ function calculate(){
 }
 </script>
   <p>「今すぐ着工できるけど、長官は○○時間の待ちかー。それでも待った方がいいのかな？」みたいなときにどうぞ。</p>
-  <font color="#EEE" size="0.5em">ver0.3.1</font>
+  <font color="#EEE" size="0.5em">ver0.3.2</font>
 <footer style="
     margin-top:1.5em;
     max-width: 90%;
