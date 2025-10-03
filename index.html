@@ -30,6 +30,18 @@
 </script>
 </head>
 <body>
+<!-- ヘッダー -->
+  <div id="header"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header").innerHTML = data;
+      })
+      .catch(err => console.error("ヘッダー読み込み失敗:", err));
+  </script>
+
+  
 <h2>加速時間を計算してみる君</h2>
 
 <h3>元の所要時間</h3>
