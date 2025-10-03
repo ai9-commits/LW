@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>簡易タイマー</title>
+<style>
+  body { font-family: sans-serif; padding: 10px; max-width: 95%; margin: auto; overflow-x: hidden; overflow-wrap: break-word;}
+  h2 { margin-top:0.3em; margin-bottom:0.75em;}
+  h3 { margin-bottom:0em; margin-top:0.5em;}
+  label { display: block; margin-top: 0em; word-break: break-word; }
+  input { margin: 2px; }
+  input#dA { width: 2em;}
+  input#dB { width: 2em;}
+  input#deltaCustom { width: 2.2em;}
+  input#speedB { width: 6em;}
+  button { font-size: large; margin-top: 1em; padding: 0.25em 0.25em; vertical-align: bottom; height: 1.5em; text-box:auto;}
+  table { border-collapse: collapse; margin-top: 0.5em; overflow-x: auto; max-width:90%;}
+  th, td { border: 1px solid #999; padding: 2px; text-align: center; }
+  td.diff { font-size: small; color: #ff1e1e; }
+  th { background-color: #f0f0f0; }
+  .result { margin-top: 1em; }
+
+  .timer-item { margin-bottom: 0.5em; }
+  .remain { color: red; margin-left: 10px; }
+  .notify {
+    background: #ffefc1;
+    border: 1px solid #e0c060;
+    padding: 8px;
+    margin: 8px 0;
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+<h2>簡易タイマー</h2>
+
+<div class="timer">
+  ラベル: <input type="text" id="memo" placeholder="メモ的に使う欄" style="width:150px;">
+  時: <input type="number" id="hours" value="0" min="0" style="width:50px;"> 
+  分: <input type="number" id="minutes" value="0" min="0" style="width:50px;">
+  秒: <input type="number" id="seconds" value="10" min="0" style="width:50px;">
+  <button onclick="addTimer()">追加</button>
+</div>
+
+<h3>タイマー一覧</h3>
+<ul id="timerList"></ul>
+
+<h3>通知</h3>
+<div id="notifications"></div>
+
+<script>
+let timerId = 0;
+
+function addTimer() {
+  const memo = document.getElementById("memo").value.trim() || "（ラベルなし）";
+  const hours = parseInt(document.getElementById("hours").value, 10) || 0;
+  const minutes = parseInt(document.getElementById("minutes").value, 10) || 0;
+  const seconds = parseInt(document.getElementById("seconds").value, 10) || 0;
+
+  const totalMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
+
+  if (totalMs <= 0) {
+    alert("1秒以上を設定してください");
+    return;
+  }
+
+  const now = new Date();
+  const target = new Date(now.getTime() + totalMs);
+
+  // リストに表示する項目を作成
+  const li = document.createElement("li");
+  li.className = "timer-item";
+  const id = ++timerId;
+  li.innerHTML = `
+    タイマー${id}【${memo}】：${hours}時間 ${minutes}分 ${seconds}秒後 → ${target.toLocaleTimeString()}
+    <span class="remain">(残り: 計算中...)</span>
+  `;
+  document.getElementById("timerList").appendChild(li);
+
+  const remainSpan = li.querySelector(".remain");
+
+  // 残り時間を更新する関数
+  function updateRemain() {
+    const now = new Date();
+    const diff = target - now;
+
+    if (diff <= 0) {
+      clearInterval(interval);
+      remainSpan.textContent = "(終了)";
+
+      // 通知エリアに表示
+      const note = document.createElement("div");
+      note.className = "notify";
+      note.textContent = `✅ タイマー${id}【${memo}】：${target.toLocaleTimeString()} になりました！`;
+      document.getElementById("notifications").appendChild(note);
+
+    } else {
+      const sec = Math.floor(diff / 1000);
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+
+      let remainText = "";
+      if (h > 0) {
+        remainText = `${h}時間${m}分${s}秒`;
+      } else if (m > 0) {
+        remainText = `${m}分${s}秒`;
+      } else {
+        remainText = `${s}秒`;
+      }
+
+      remainSpan.textContent = `(残り: ${remainText})`;
+    }
+  }
+
+  // すぐに1回更新してから1秒ごとに更新
+  updateRemain();
+  const interval = setInterval(updateRemain, 1000);
+}
+</script>
+</body>
+</html>
