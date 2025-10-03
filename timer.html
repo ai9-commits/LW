@@ -32,7 +32,18 @@
 </style>
 </head>
 <body>
-<h2>簡易タイマー</h2>
+  <!-- ヘッダー -->
+  <div id="header"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header").innerHTML = data;
+      })
+      .catch(err => console.error("ヘッダー読み込み失敗:", err));
+  </script>
+  
+<h2>簡易複数タイマー</h2>
 
 <div class="timer">
   ラベル: <input type="text" id="memo" placeholder="メモ的に使う欄" style="width:150px;">
