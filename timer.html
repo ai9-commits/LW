@@ -92,7 +92,7 @@ function addTimer() {
       const note = document.createElement("div");
       note.className = "notify";
       note.textContent = `✅ タイマー${id}【${memo}】：${target.toLocaleTimeString()} になりました！`;
-      document.getElementById("notifications").appendChild(note);
+      document.getElementById("notifications").prepend(note);
 
     } else {
       const sec = Math.floor(diff / 1000);
