@@ -154,7 +154,7 @@ function calculate(){
       <td>${deltaLabels[i]}</td>
       <td>${secondsToCompactDHMS(newTime)}</td>
       <td class="diff">${secondsToCompactDHMS(diff)}</td>
-      <td>${secondsToHMS(durationB_halfPercent)}</td>
+      <td>${secondsToCompactDHMS(halfPercent)}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -162,7 +162,7 @@ function calculate(){
 </script>
   <p>「今すぐ着工できるけど、長官は○○時間の待ちかー。それでも待った方がいいのかな？」みたいなときにどうぞ。</p>
   
-  <font color="#EEE" size="0.5em">ver0.4.1</font>
+  <font color="#EEE" size="0.5em">ver0.4.2</font>
 
   <footer style="
     margin-top:1.5em;
