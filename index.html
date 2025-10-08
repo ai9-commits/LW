@@ -64,6 +64,7 @@
       <th>加速</th>
       <th>所要時間</th>
       <th>短縮効果</th>
+      <th>所要時間の0.5%</th>
     </tr>
   </thead>
   <tbody>
@@ -146,20 +147,24 @@ function calculate(){
   deltas.forEach((delta,i)=>{
     const newTime = secondsB * (speedB / (speedB + delta));
     const diff = secondsB - newTime;
+    let halfPercent = newTime * 0.005;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${deltaLabels[i]}</td>
       <td>${secondsToCompactDHMS(newTime)}</td>
       <td class="diff">${secondsToCompactDHMS(diff)}</td>
+      <td>${secondsToHMS(durationB_halfPercent)}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 </script>
   <p>「今すぐ着工できるけど、長官は○○時間の待ちかー。それでも待った方がいいのかな？」みたいなときにどうぞ。</p>
-  <font color="#EEE" size="0.5em">ver0.3.2</font>
-<footer style="
+  
+  <font color="#EEE" size="0.5em">ver0.4.1</font>
+
+  <footer style="
     margin-top:1.5em;
     max-width: 90%;
     padding:0.5em;
