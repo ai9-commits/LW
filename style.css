@@ -7,12 +7,12 @@
   input#dB { width: 2em;}
   input#deltaCustom { width: 2.2em;}
   input#speedB { width: 6em;}
-  button { font-size: large; margin-top: 1em; padding: 0.25em 0.25em; vertical-align: bottom; height: 1.5em; text-box:auto;}
+  button { font-size: large;font-weight: 500; margin-top: 1em; padding: 0.5em 0.5em; vertical-align: bottom; height: 2em; text-box:auto;}
   table { border-collapse: collapse; margin-top: 0.5em; overflow-x: auto; max-width:90%;}
   th, td { border: 1px solid #999; padding: 2px; text-align: center; }
   .tate { transform   : scaleX(0.6); }
   td.diff { font-size: small; color: #ff1e1e; }
-  th { background-color: #f0f0f0; }
+  th { background-color: #f0f0f0; font-weight: 400; }
   .result { margin-top: 1em; }
 
   .timer-item { margin-bottom: 0.5em; }
