@@ -10,6 +10,7 @@
   button { font-size: large; margin-top: 1em; padding: 0.25em 0.25em; vertical-align: bottom; height: 1.5em; text-box:auto;}
   table { border-collapse: collapse; margin-top: 0.5em; overflow-x: auto; max-width:90%;}
   th, td { border: 1px solid #999; padding: 2px; text-align: center; }
+  .tate { transform   : scaleX(0.6); }
   td.diff { font-size: small; color: #ff1e1e; }
   th { background-color: #f0f0f0; }
   .result { margin-top: 1em; }
