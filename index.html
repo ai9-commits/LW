@@ -92,7 +92,8 @@ function secondsToCompactDHMS(sec){
   sec %= 3600;
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
-  return `${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+//  return `${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    return `$(d > 0 ? d + "d" : "") ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
 function calculate(){
@@ -162,7 +163,7 @@ function calculate(){
 </script>
   <p>「今すぐ着工できるけど、長官は○○時間の待ちかー。それでも待った方がいいのかな？」みたいなときにどうぞ。</p>
   
-  <font color="#EEE" size="0.5em">ver0.4.2</font>
+  <font color="#EEE" size="0.5em">ver0.4.3</font>
 
   <footer style="
     margin-top:1.5em;
