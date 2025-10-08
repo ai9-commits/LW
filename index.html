@@ -92,8 +92,13 @@ function secondsToCompactDHMS(sec){
   sec %= 3600;
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
+
+  let hh = h.toString().padStart(2, '0');
+  let mm = m.toString().padStart(2, '0');
+  let ss = s.toString().padStart(2, '0');
+
+  return (d > 0 ? d + "d" : "") + hh + ":" + mm + ":" + ss;
 //  return `${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    return `$(d > 0 ? d + "d" : "") ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
 function calculate(){
