@@ -64,12 +64,12 @@
       <th>加速</th>
       <th>所要時間</th>
       <th>短縮効果</th>
-      <th><div class="tate">所要時間の0.5%</div></th>
+<!--      <th><div class="tate">所要時間の0.5%</div></th>-->
     </tr>
   </thead>
   <tbody>
     <!-- 計算結果がここに入る -->
-    <tr><td colspan=4>～ 計算結果がここに表示されるよ ～</td></tr>
+    <tr><td colspan=3>～ 計算結果がここに表示されるよ ～</td></tr>
   </tbody>
 </table>
 
@@ -161,15 +161,15 @@ function calculate(){
       <td>${deltaLabels[i]}</td>
       <td>${secondsToCompactDHMS(newTime)}</td>
       <td class="diff">${secondsToCompactDHMS(diff)}</td>
-      <td>${secondsToCompactDHMS(halfPercent)}</td>
     `;
+//    <td>${secondsToCompactDHMS(halfPercent)}</td>
     tbody.appendChild(tr);
   });
 }
 </script>
   <p>「今すぐ着工できるけど、長官は○○時間の待ちかー。それでも待った方がいいのかな？」みたいなときにどうぞ。</p>
   
-  <font color="#EEE" size="0.5em">ver0.4.3</font>
+  <font color="#EEE" size="0.5em">ver0.4.4</font>
 
   <footer style="
     margin-top:1.5em;
