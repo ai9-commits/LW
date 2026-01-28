@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="style.css">
+  <title>長官並び時間計算ツール</title>
+</head>
+<body>
+
+  <div id="header"></div>
+
+  <main>
+    <h2>指定分数後の時刻計算</h2>
+    <label>
+      回数: <input type="number" id="input1" min="0" max="99">
+    </label>
+    ×
+    <label>
+      分: <input type="number" id="input2" value="5" readonly>
+    </label>
+    <button id="calcBtn">計算する</button>
+
+    <div class="result">
+      <p>現在時刻：<span id="outputNow">-</span></p>
+      <p>計算後時刻：<span id="outputFuture">-</span></p>
+    </div>
+  </main>
+
+  <script>
+    // header の読み込み（既存パターンに合わせる）
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => document.getElementById('header').innerHTML = html);
+
+    function formatHMS(date) {
+      const hh = String(date.getHours()).padStart(2,'0');
+      const mm = String(date.getMinutes()).padStart(2,'0');
+      const ss = String(date.getSeconds()).padStart(2,'0');
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    document.getElementById('calcBtn').addEventListener('click', () => {
+      const n = parseInt(document.getElementById('input1').value, 10);
+      const m = parseInt(document.getElementById('input2').value, 10);
+
+      if (isNaN(n)) {
+        alert('数値を入力してください');
+        return;
+      }
+
+      const now = new Date();
+      const future = new Date(now);
+      future.setMinutes(now.getMinutes() + n*m);
+
+      document.getElementById('outputNow').textContent = formatHMS(now);
+      document.getElementById('outputFuture').textContent = formatHMS(future);
+    });
+  </script>
+
+</body>
+</html>
