@@ -2,106 +2,68 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>簡易タイマー</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>簡易複数タイマー</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <!-- ヘッダー -->
-  <div id="header"></div>
-  <script>
-    fetch("header.html")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("header").innerHTML = data;
-      })
-      .catch(err => console.error("ヘッダー読み込み失敗:", err));
-  </script>
-  
+
+<div id="header"></div>
+<script>
+fetch("header.html")
+  .then(res => res.text())
+  .then(data => document.getElementById("header").innerHTML = data);
+</script>
+
+<main>
+
 <h2>簡易複数タイマー</h2>
 
-<div class="timer">
-  ラベル: <input type="text" id="memo" placeholder="メモ的に使う欄" style="width:150px;">
-  時: <input type="number" id="hours" value="0" min="0" style="width:50px;"> 
-  分: <input type="number" id="minutes" value="0" min="0" style="width:50px;">
-  秒: <input type="number" id="seconds" value="10" min="0" style="width:50px;">
+<div id="timerList"></div>
+
+<div class="form-row">
+  <input type="number" id="minutes" placeholder="分" class="small-input">
+  <input type="number" id="seconds" placeholder="秒" class="small-input">
   <button onclick="addTimer()">追加</button>
 </div>
 
-<h3>タイマー一覧</h3>
-<ul id="timerList"></ul>
-
-<h3>通知</h3>
-<div id="notifications"></div>
+</main>
 
 <script>
-let timerId = 0;
+let timers = [];
 
-function addTimer() {
-  const memo = document.getElementById("memo").value.trim() || "（ラベルなし）";
-  const hours = parseInt(document.getElementById("hours").value, 10) || 0;
-  const minutes = parseInt(document.getElementById("minutes").value, 10) || 0;
-  const seconds = parseInt(document.getElementById("seconds").value, 10) || 0;
+function addTimer(){
+  const m = parseInt(document.getElementById("minutes").value) || 0;
+  const s = parseInt(document.getElementById("seconds").value) || 0;
+  const total = m*60 + s;
+  if(total <= 0) return;
 
-  const totalMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
+  const end = Date.now() + total*1000;
+  timers.push({end});
 
-  if (totalMs <= 0) {
-    alert("1秒以上を設定してください");
-    return;
-  }
-
-  const now = new Date();
-  const target = new Date(now.getTime() + totalMs);
-
-  // リストに表示する項目を作成
-  const li = document.createElement("li");
-  li.className = "timer-item";
-  const id = ++timerId;
-  li.innerHTML = `
-    タイマー${id}【${memo}】：${hours}時間 ${minutes}分 ${seconds}秒後 → ${target.toLocaleTimeString()}
-    <span class="remain">(残り: 計算中...)</span>
-  `;
-  document.getElementById("timerList").appendChild(li);
-
-  const remainSpan = li.querySelector(".remain");
-
-  // 残り時間を更新する関数
-  function updateRemain() {
-    const now = new Date();
-    const diff = target - now;
-
-    if (diff <= 0) {
-      clearInterval(interval);
-      remainSpan.textContent = "(終了)";
-
-      // 通知エリアに表示
-      const note = document.createElement("div");
-      note.className = "notify";
-      note.textContent = `✅ タイマー${id}【${memo}】：${target.toLocaleTimeString()} になりました！`;
-      document.getElementById("notifications").prepend(note);
-
-    } else {
-      const sec = Math.floor(diff / 1000);
-      const h = Math.floor(sec / 3600);
-      const m = Math.floor((sec % 3600) / 60);
-      const s = sec % 60;
-
-      let remainText = "";
-      if (h > 0) {
-        remainText = `${h}時間${m}分${s}秒`;
-      } else if (m > 0) {
-        remainText = `${m}分${s}秒`;
-      } else {
-        remainText = `${s}秒`;
-      }
-
-      remainSpan.textContent = `(残り: ${remainText})`;
-    }
-  }
-
-  // すぐに1回更新してから1秒ごとに更新
-  updateRemain();
-  const interval = setInterval(updateRemain, 1000);
+  render();
 }
+
+function render(){
+  const list = document.getElementById("timerList");
+  list.innerHTML = "";
+
+  timers.forEach((t,i)=>{
+    const remain = Math.max(0, Math.floor((t.end - Date.now())/1000));
+
+    const div = document.createElement("div");
+    div.className = "timer-item";
+    div.innerHTML = `
+      タイマー${i+1}：
+      <span class="remain">${remain}秒</span>
+    `;
+    list.appendChild(div);
+  });
+}
+
+setInterval(render, 1000);
 </script>
+
 </body>
 </html>
