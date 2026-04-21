@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LW時間計算ツール</title>
 <link rel="stylesheet" href="style.css">
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NWV2W1CSQT"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -13,46 +14,55 @@
   gtag('config', 'G-NWV2W1CSQT');
 </script>
 </head>
-<body>
-<!-- ヘッダー -->
-  <div id="header"></div>
-  <script>
-    fetch("header.html")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("header").innerHTML = data;
-      })
-      .catch(err => console.error("ヘッダー読み込み失敗:", err));
-  </script>
 
-  
+<body>
+
+<!-- ヘッダー -->
+<div id="header"></div>
+<script>
+fetch("header.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("header").innerHTML = data;
+  })
+  .catch(err => console.error("ヘッダー読み込み失敗:", err));
+</script>
+
+<main>
+
 <h2>加速時間を計算してみる君</h2>
 
 <h3>元の所要時間</h3>
-<!--<label> <input type="number" id="dA" step="1" value="">d<input type="time" id="hmsA" step="1" value="00:00:00"></label>-->
-<label>
+<div class="form-row">
+  <label>日数</label>
   <button type="button" onclick="dA.value=Math.max(0,+dA.value-1)">−</button>
-  <input type="number" id="dA" step="1" value="0">
+  <input type="number" id="dA" value="0" class="small-input">
   <button type="button" onclick="dA.value=+dA.value+1">＋</button>
-  d<input type="time" id="hmsA" step="1" value="00:00:00">
-</label>
 
-<!--<h3>現在の所要時間か速度のどちらか入力</h3>-->
+  <span>d</span>
+
+  <input type="time" id="hmsA" step="1" value="00:00:00">
+</div>
+
 <h3>現在の所要時間</h3>
-<!--<label> <input type="number" id="dB" step="1" value="">d<input type="time" id="hmsB" step="1" value="00:00:00"></label>-->
-<label>
+<div class="form-row">
+  <label>日数</label>
   <button type="button" onclick="dB.value=Math.max(0,+dB.value-1)">−</button>
-  <input type="number" id="dB" step="1" value="0">
+  <input type="number" id="dB" value="0" class="small-input">
   <button type="button" onclick="dB.value=+dB.value+1">＋</button>
-  d<input type="time" id="hmsB" step="1" value="00:00:00">
-</label>
-  
-<!--<label>速度: <input type="number" id="speedB" step="any" value=""></label>
-<small>※所要時間と速度の両方を入力した場合、<br>&nbsp速度を優先して計算します</small>-->
+
+  <span>d</span>
+
+  <input type="time" id="hmsB" step="1" value="00:00:00">
+</div>
 
 <h3>任意の加速速度</h3>
-<label>速度％: <input type="number" id="deltaCustom" step="any" value="60"></label>
-<label></label><button onclick="calculate()">計算する</button></label>
+<div class="form-row">
+  <label>速度％</label>
+  <input type="number" id="deltaCustom" value="60" class="small-input">
+</div>
+
+<button onclick="calculate()">計算する</button>
 
 <div class="result">
   <p>現在の速度: <span id="displaySpeedB">---</span></p>
@@ -64,12 +74,14 @@
       <th>加速</th>
       <th>所要時間</th>
       <th>短縮効果</th>
-<!--      <th><div class="tate">所要時間の0.5%</div></th>-->
     </tr>
   </thead>
   <tbody>
-    <!-- 計算結果がここに入る -->
-    <tr><td colspan=3><div class="tate">～ 計算結果がここに表示されるよ ～</div></td></tr>
+    <tr>
+      <td colspan="3">
+        <div class="tate">～ 計算結果がここに表示されるよ ～</div>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -78,14 +90,14 @@ function timeToSeconds(d, hmsStr){
   const [h,m,s] = hmsStr.split(":").map(Number);
   return (d || 0)*86400 + h*3600 + m*60 + s;
 }
-// "hh:mm" 形式なら ":00" を追加
+
 function normalizeTime(value) {
   if (/^\d{2}:\d{2}$/.test(value)) {
     return value + ":00";
   }
   return value;
 }
-// 1d 11:22:33形式で表示
+
 function secondsToCompactDHMS(sec){
   const d = Math.floor(sec / 86400);
   sec %= 86400;
@@ -99,93 +111,67 @@ function secondsToCompactDHMS(sec){
   let ss = s.toString().padStart(2, '0');
 
   return (d > 0 ? d + "d" : "") + hh + ":" + mm + ":" + ss;
-//  return `${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
 function calculate(){
   const dA = parseInt(document.getElementById("dA").value) || 0;
-  const hmsAraw = document.getElementById("hmsA").value || "00:00:00";
-  const hmsA = normalizeTime(hmsAraw) || "00:00:00";
+  const hmsA = normalizeTime(document.getElementById("hmsA").value || "00:00:00");
   const secondsA = timeToSeconds(dA, hmsA);
 
   const dB = parseInt(document.getElementById("dB").value) || 0;
-  const hmsBraw = document.getElementById("hmsB").value;
-  const hmsB = normalizeTime(hmsBraw) || "00:00:00";
+  const hmsB = normalizeTime(document.getElementById("hmsB").value || "00:00:00");
   let secondsB = timeToSeconds(dB, hmsB);
-  //let speedB = parseFloat(document.getElementById("speedB").value) || null;
+
   let speedB = 0;
   const speedA = 100;
   const deltaCustom = parseFloat(document.getElementById("deltaCustom").value) || 0;
 
-  // Bの所要時間優先
-  if(speedB && speedB > 0){
-    secondsB = secondsA * (speedA / speedB);
-  } else if(dB !== "" && hmsB){
-    secondsB = timeToSeconds(parseInt(dB), hmsB);
-    if(secondsB <= 0){ alert("現在の所要時間は0秒以上にしてください"); return; }
+  if(secondsB > 0){
     speedB = speedA * (secondsA / secondsB);
-  } else if(speedB && speedB > 0){
-    secondsB = secondsA * (speedA / speedB);
   } else {
-  //  alert("Bの所要時間か速度のどちらかを入力してください");
     alert("現在の所要時間を入力してください");
     return;
   }
+
   const speedB_fixed = parseFloat(speedB.toFixed(2));
+
   gtag('event', 'calc_execute', {
-      event_category: 'button',
-      event_label: 'calcButton',
-      durationA_seconds: secondsA,
-      durationB_seconds: secondsB,
-      speedB: speedB_fixed
+    durationA_seconds: secondsA,
+    durationB_seconds: secondsB,
+    speedB: speedB_fixed
   });
-  // Bの速度表示
+
   document.getElementById("displaySpeedB").textContent = speedB.toFixed(2);
 
-  // 足す速度計算
   const deltas = [20,25,50, deltaCustom];
-  const deltaLabels = ["20","25","50",deltaCustom];
-  //const deltas = [20,25,50,60];
-  //const deltaLabels = ["20","25","50","60"];
+  const labels = ["20","25","50",deltaCustom];
 
   const tbody = document.querySelector("#resultTable tbody");
-  tbody.innerHTML = ""; // 初期化
+  tbody.innerHTML = "";
 
   deltas.forEach((delta,i)=>{
     const newTime = secondsB * (speedB / (speedB + delta));
     const diff = secondsB - newTime;
-    let halfPercent = newTime * 0.005;
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${deltaLabels[i]}</td>
+      <td>${labels[i]}</td>
       <td>${secondsToCompactDHMS(newTime)}</td>
       <td class="diff">${secondsToCompactDHMS(diff)}</td>
     `;
-//    <td>${secondsToCompactDHMS(halfPercent)}</td>
     tbody.appendChild(tr);
   });
 }
 </script>
-  <p>「今すぐ着工できるけど、長官は○○時間の待ちかー。それでも待った方がいいのかな？」みたいなときにどうぞ。</p>
-  
-  <font color="#EEE" size="0.5em">ver0.4.4</font>
 
-  <footer style="
-    margin-top:1.5em;
-    max-width: 90%;
-    padding:0.5em;
-    font-size:0.55em;
-    color:#555;
-    border-top:1px solid #ccc;
-    text-align:left;
-    overflow-wrap: break-word;
-    box-sizing: border-box;
-">
+<p>「今すぐ着工できるけど、長官は○○時間の待ちかー。それでも待った方がいいのかな？」みたいなときにどうぞ。</p>
+
+<footer style="margin-top:1.5em; font-size:0.7em; color:#555; border-top:1px solid #ccc;">
   <p>作成: とうふゃ#1611</p>
   <p>文責: 個人作成ツールのため、計算結果の正確性は保証しません</p>
-  <p>使用上の注意: 本ツールは簡易計算用です。<br>仕様変更や追加要素、計算時の端数誤差によって差が発生する可能性があります</p>
-  <p>一部のOSでは秒数が入力できないけど、そこはちょっとの誤差と認識してね。</p>
+  <p>使用上の注意: 本ツールは簡易計算用です</p>
 </footer>
+
+</main>
 </body>
 </html>
