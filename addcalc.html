@@ -1,65 +1,71 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>時間加算ツール</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>長官並び時間計算</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <div id="header"></div>
 <script>
-fetch("header.html")
+fetch('header.html')
   .then(res => res.text())
-  .then(data => document.getElementById("header").innerHTML = data);
+  .then(html => document.getElementById('header').innerHTML = html);
 </script>
 
 <main>
 
-<h2>指定分数後の時刻計算</h2>
+<h2>長官待ち何時頃になるのかな</h2>
 
 <div class="form-row">
-  <label>回数</label>
-  <input type="number" id="input1" min="0" max="99" class="small-input">
+  <label>待ち人数</label>
+  <input type="number" id="input1" min="0" max="100" class="small-input">
 </div>
 
 <div class="form-row">
   <label>× 分</label>
-  <input type="number" id="input2" value="5" readonly class="small-input">
+  <input type="number" id="input2" value="5" class="small-input">
 </div>
 
-<button onclick="calcTime()">計算する</button>
+<button id="calcBtn">計算する</button>
 
 <div class="result">
   <p>現在時刻：<span id="outputNow">-</span></p>
   <p>計算後時刻：<span id="outputFuture">-</span></p>
 </div>
 
+<p>指定した待ち人数＊5分後の時刻を表示します。</p>
+<p>「長官は90人待ちかー。・・・90人待ちって何時になるんだ？」みたいなときにどうぞ。</p>
+
 </main>
 
 <script>
-function formatTime(date){
-  const h = String(date.getHours()).padStart(2,'0');
-  const m = String(date.getMinutes()).padStart(2,'0');
-  const s = String(date.getSeconds()).padStart(2,'0');
-  return `${h}:${m}:${s}`;
+function formatHMS(date) {
+  const hh = String(date.getHours()).padStart(2,'0');
+  const mm = String(date.getMinutes()).padStart(2,'0');
+  const ss = String(date.getSeconds()).padStart(2,'0');
+  return `${hh}:${mm}:${ss}`;
 }
 
-function calcTime(){
-  let n = parseInt(document.getElementById("input1").value);
-  if(isNaN(n)) n = 0;
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const n = parseInt(document.getElementById('input1').value, 10);
+  const m = parseInt(document.getElementById('input2').value, 10);
 
-  const m = parseInt(document.getElementById("input2").value);
+  if (isNaN(n)) {
+    alert('数値を入力してください');
+    return;
+  }
 
   const now = new Date();
   const future = new Date(now);
-  future.setMinutes(now.getMinutes() + n*m);
+  future.setMinutes(now.getMinutes() + n * m);
 
-  document.getElementById("outputNow").textContent = formatTime(now);
-  document.getElementById("outputFuture").textContent = formatTime(future);
-}
+  document.getElementById('outputNow').textContent = formatHMS(now);
+  document.getElementById('outputFuture').textContent = formatHMS(future);
+});
 </script>
 
 </body>
