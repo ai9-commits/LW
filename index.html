@@ -17,15 +17,11 @@
 
 <body>
 
-<!-- ヘッダー -->
 <div id="header"></div>
 <script>
 fetch("header.html")
   .then(res => res.text())
-  .then(data => {
-    document.getElementById("header").innerHTML = data;
-  })
-  .catch(err => console.error("ヘッダー読み込み失敗:", err));
+  .then(data => document.getElementById("header").innerHTML = data);
 </script>
 
 <main>
@@ -35,24 +31,28 @@ fetch("header.html")
 <h3>元の所要時間</h3>
 <div class="form-row">
   <label>日数</label>
-  <button type="button" onclick="dA.value=Math.max(0,+dA.value-1)">−</button>
-  <input type="number" id="dA" value="0" class="small-input">
-  <button type="button" onclick="dA.value=+dA.value+1">＋</button>
+
+  <div class="stepper">
+    <button type="button" onclick="dA.value=Math.max(0,+dA.value-1)">−</button>
+    <input type="number" id="dA" value="0">
+    <button type="button" onclick="dA.value=+dA.value+1">＋</button>
+  </div>
 
   <span>d</span>
-
   <input type="time" id="hmsA" step="1" value="00:00:00">
 </div>
 
 <h3>現在の所要時間</h3>
 <div class="form-row">
   <label>日数</label>
-  <button type="button" onclick="dB.value=Math.max(0,+dB.value-1)">−</button>
-  <input type="number" id="dB" value="0" class="small-input">
-  <button type="button" onclick="dB.value=+dB.value+1">＋</button>
+
+  <div class="stepper">
+    <button type="button" onclick="dB.value=Math.max(0,+dB.value-1)">−</button>
+    <input type="number" id="dB" value="0">
+    <button type="button" onclick="dB.value=+dB.value+1">＋</button>
+  </div>
 
   <span>d</span>
-
   <input type="time" id="hmsB" step="1" value="00:00:00">
 </div>
 
@@ -164,12 +164,9 @@ function calculate(){
 }
 </script>
 
-<p>「今すぐ着工できるけど、長官は○○時間の待ちかー。それでも待った方がいいのかな？」みたいなときにどうぞ。</p>
-
 <footer style="margin-top:1.5em; font-size:0.7em; color:#555; border-top:1px solid #ccc;">
   <p>作成: とうふゃ#1611</p>
   <p>文責: 個人作成ツールのため、計算結果の正確性は保証しません</p>
-  <p>使用上の注意: 本ツールは簡易計算用です</p>
 </footer>
 
 </main>
