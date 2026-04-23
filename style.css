@@ -1,32 +1,121 @@
-  body { font-family: sans-serif; padding: 10px; max-width: 95%; margin: auto; overflow-x: hidden; overflow-wrap: break-word;}
-  h2 { margin-top:0.3em; margin-bottom:0.75em;}
-  h3 { margin-bottom:0em; margin-top:0.5em;}
-  label { display: block; margin-top: 0em; word-break: break-word; }
-  input { margin: 2px; }
-  input#dA { width: 2em;}
-  input#dB { width: 2em;}
-  input#deltaCustom { width: 2.2em;}
-  input#speedB { width: 6em;}
-  button { font-size: large;font-weight: 500; margin-top: 1em; padding: 0.5em 0.5em; vertical-align: bottom; height: 2em; text-box:auto;}
-  table { border-collapse: collapse; margin-top: 0.5em; overflow-x: auto; max-width:90%;}
-  th, td { border: 1px solid #999; padding: 2px; text-align: center; }
-  .tate { transform   : scaleX(0.75); }
-  td.diff { font-size: small; color: #ff1e1e; }
-  th { background-color: #f0f0f0; font-weight: 400; }
-  .result { margin-top: 1em; }
-
-  .timer-item { margin-bottom: 0.5em; }
-  .remain { color: red; margin-left: 10px; }
-  .notify {
-    background: #ffefc1;
-    border: 1px solid #e0c060;
-    padding: 8px;
-    margin: 8px 0;
-    border-radius: 6px;
-  }
 /* =========================
-   A：入力ブロックをカード化
+   ① カラートークン
 ========================= */
+:root {
+  --bg: #ffffff;
+  --text: #222222;
+  --subtext: #555555;
+
+  --primary: #0077cc;
+  --primary-hover: #005fa3;
+
+  --card: #f9f9f9;
+  --border: #cccccc;
+
+  --table-header: #f0f0f0;
+
+  --danger: #ff1e1e;
+
+  --notify-bg: #ffefc1;
+  --notify-border: #e0c060;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --text: #eeeeee;
+    --subtext: #aaaaaa;
+
+    --primary: #66b2ff;
+    --primary-hover: #99ccff;
+
+    --card: #1e1e1e;
+    --border: #444444;
+
+    --table-header: #2a2a2a;
+
+    --danger: #ff6b6b;
+
+    --notify-bg: #3a2f00;
+    --notify-border: #806a00;
+  }
+}
+
+/* =========================
+   ② ベース
+========================= */
+body {
+  font-family: sans-serif;
+  padding: 10px;
+  max-width: 95%;
+  margin: auto;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+h2 { margin-top:0.3em; margin-bottom:0.75em; }
+h3 { margin-bottom:0em; margin-top:0.5em; }
+
+label {
+  display: block;
+  word-break: break-word;
+}
+
+input {
+  margin: 2px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* =========================
+   ③ ボタン
+========================= */
+button {
+  font-size: large;
+  font-weight: 500;
+  margin-top: 1em;
+  padding: 0.5em 0.5em;
+  height: 2em;
+
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
+
+/* =========================
+   ④ テーブル
+========================= */
+table {
+  border-collapse: collapse;
+  margin-top: 0.5em;
+  max-width: 90%;
+}
+
+th, td {
+  border: 1px solid var(--border);
+  padding: 2px;
+  text-align: center;
+}
+
+th {
+  background: var(--table-header);
+  font-weight: 400;
+}
+
+td.diff {
+  font-size: small;
+  color: var(--danger);
+}
+
+/* =========================
+   ⑤ 共通UI
+========================= */
+.result { margin-top: 1em; }
+
 .form-row {
   display: flex;
   align-items: center;
@@ -34,78 +123,80 @@
   margin-bottom: 12px;
   flex-wrap: wrap;
 
-  background: #f9f9f9;
+  background: var(--card);
   padding: 10px;
   border-radius: 8px;
 }
 
 /* =========================
-   B：+ − ボタンの一体化
+   ⑥ ステッパー
 ========================= */
 .stepper {
   display: flex;
   align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .stepper button {
   width: 32px;
   height: 32px;
   padding: 0;
+  border: none;
+  background: var(--card);
 }
 
 .stepper input {
-  text-align: center;
   width: 3em;
+  text-align: center;
+  border: none;
 }
 
 /* =========================
-   C：全体トーン調整
+   ⑦ タイマー
 ========================= */
-body {
-  background: #ffffff;
-  color: #222;
+.timer-item { margin-bottom: 0.5em; }
+
+.remain {
+  color: var(--danger);
+  margin-left: 10px;
 }
 
-table th {
-  background: #f0f0f0;
+.notify {
+  background: var(--notify-bg);
+  border: 1px solid var(--notify-border);
+  padding: 8px;
+  margin: 8px 0;
+  border-radius: 6px;
 }
 
 /* =========================
-   ダークモード対応
+   ⑧ ナビ
 ========================= */
-@media (prefers-color-scheme: dark) {
+.main-nav ul {
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap;
+}
 
-  body {
-    background: #121212;
-    color: #eee;
-  }
+.main-nav a {
+  color: var(--primary);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
 
-  .form-row {
-    background: #1e1e1e;
-  }
-
-  input, button {
-    background: #2a2a2a;
-    color: #eee;
-    border-color: #444;
-  }
-
-  table th {
-    background: #2a2a2a;
-  }
-
-  th, td {
-    border-color: #444;
-  }
-
-  .notify {
-    background: #3a2f00;
-    border-color: #806a00;
-  }
+.main-nav a:hover {
+  color: var(--primary-hover);
+  background: var(--card);
 }
 
 /* =========================
-   スマホ最適化（強化）
+   ⑨ スマホ対応
 ========================= */
 @media (max-width: 600px) {
 
@@ -116,47 +207,6 @@ table th {
 
   input, button {
     width: 100%;
-  }
-}
-.stepper {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.stepper button {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: #eee;
-}
-
-.stepper input {
-  width: 3em;
-  text-align: center;
-  border: none;
-}
-.main-nav ul {
-  display: flex;
-  gap: 12px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-@media (prefers-color-scheme: dark) {
-
-  .main-nav a {
-    background: #1e1e1e;
-    color: #66b2ff; /* 明るめブルー */
-    border-radius: 6px;
-    padding: 4px 8px;
-  }
-
-  .main-nav a:hover {
-    background: #2a2a2a;
-    color: #99ccff;
   }
 
 }
