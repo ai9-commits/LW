@@ -2,19 +2,36 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>タイマー</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>簡易複数タイマー</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+<!-- ヘッダー -->
 <div id="header"></div>
+<script>
+fetch("header.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("header").innerHTML = data;
+  })
+  .catch(err => console.error("ヘッダー読み込み失敗:", err));
+</script>
 
-<h2>タイマー</h2>
+<main>
+
+<h2>簡易複数タイマー</h2>
+
+<!-- 入力エリア -->
+<div class="form-row">
+  <label>ラベル</label>
+  <input type="text" id="memo" placeholder="メモ的に使う欄">
+</div>
 
 <div class="form-row">
-  <label for="timeInput">時間</label>
+  <label>時間</label>
   <input
     type="text"
     id="timeInput"
@@ -23,27 +40,21 @@
   >
 </div>
 
-<div class="form-row">
-  <label for="labelInput">ラベル</label>
-  <input type="text" id="labelInput" placeholder="任意">
-</div>
+<button onclick="addTimer()">追加</button>
 
-<button onclick="addTimer()">タイマー追加</button>
+<h3>タイマー一覧</h3>
+<ul id="timerList"></ul>
 
-<div id="timerList"></div>
+<h3>通知</h3>
+<div id="notifications"></div>
+
+</main>
 
 <script>
-/* =========================
-   header読み込み（既存維持）
-========================= */
-fetch("header.html")
-  .then(res => res.text())
-  .then(data => {
-    document.getElementById("header").innerHTML = data;
-  });
+let timerId = 0;
 
 /* =========================
-   時間パース（新規）
+   時間パース
 ========================= */
 function parseTimeFlexible(input) {
   if (!input) return null;
@@ -78,36 +89,35 @@ function parseTimeFlexible(input) {
 }
 
 /* =========================
-   フォーマット（新規）
+   表示フォーマット
 ========================= */
-function formatTime(h, m, s) {
+function formatTime(totalSeconds) {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+
   return String(h).padStart(2,'0') + ":" +
          String(m).padStart(2,'0') + ":" +
          String(s).padStart(2,'0');
 }
 
 /* =========================
-   入力整形（blur時）
+   入力自動整形
 ========================= */
 const timeInput = document.getElementById("timeInput");
 
 timeInput.addEventListener("blur", () => {
   const sec = parseTimeFlexible(timeInput.value);
   if (sec === null) return;
-
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = sec % 60;
-
-  timeInput.value = formatTime(h, m, s);
+  timeInput.value = formatTime(sec);
 });
 
 /* =========================
-   タイマー処理（既存ベース）
+   タイマー追加
 ========================= */
 function addTimer() {
+  const memo = document.getElementById("memo").value.trim() || "（ラベルなし）";
   const input = document.getElementById("timeInput").value;
-  const label = document.getElementById("labelInput").value;
 
   const totalSeconds = parseTimeFlexible(input);
 
@@ -116,41 +126,46 @@ function addTimer() {
     return;
   }
 
-  const endTime = Date.now() + totalSeconds * 1000;
+  const totalMs = totalSeconds * 1000;
 
-  const item = document.createElement("div");
-  item.className = "timer-item";
+  const now = new Date();
+  const target = new Date(now.getTime() + totalMs);
 
-  const labelSpan = document.createElement("span");
-  labelSpan.textContent = label ? label + " " : "";
+  const li = document.createElement("li");
+  li.className = "timer-item";
+  const id = ++timerId;
 
-  const remainSpan = document.createElement("span");
-  remainSpan.className = "remain";
+  li.innerHTML = `
+    タイマー${id}【${memo}】：${formatTime(totalSeconds)} 後 → ${target.toLocaleTimeString()}
+    <span class="remain">(残り: 計算中...)</span>
+  `;
 
-  item.appendChild(labelSpan);
-  item.appendChild(remainSpan);
+  document.getElementById("timerList").appendChild(li);
 
-  document.getElementById("timerList").appendChild(item);
+  const remainSpan = li.querySelector(".remain");
 
-  function update() {
-    const diff = Math.floor((endTime - Date.now()) / 1000);
+  function updateRemain() {
+    const now = new Date();
+    const diff = target - now;
 
     if (diff <= 0) {
-      remainSpan.textContent = "終了";
-      item.classList.add("notify");
-      return;
+      clearInterval(interval);
+      remainSpan.textContent = "(終了)";
+
+      const note = document.createElement("div");
+      note.className = "notify";
+      note.textContent = `✅ タイマー${id}【${memo}】：${target.toLocaleTimeString()} になりました！`;
+
+      document.getElementById("notifications").prepend(note);
+
+    } else {
+      const sec = Math.floor(diff / 1000);
+      remainSpan.textContent = `(残り: ${formatTime(sec)})`;
     }
-
-    const h = Math.floor(diff / 3600);
-    const m = Math.floor((diff % 3600) / 60);
-    const s = diff % 60;
-
-    remainSpan.textContent = formatTime(h, m, s);
-
-    requestAnimationFrame(update);
   }
 
-  update();
+  updateRemain();
+  const interval = setInterval(updateRemain, 1000);
 }
 </script>
 
