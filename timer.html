@@ -2,124 +2,155 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>簡易複数タイマー</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タイマー</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- ヘッダー -->
 <div id="header"></div>
+
+<h2>タイマー</h2>
+
+<div class="form-row">
+  <label for="timeInput">時間</label>
+  <input
+    type="text"
+    id="timeInput"
+    placeholder="例: 5:30 / 530 / 00:05:30"
+    inputmode="numeric"
+  >
+</div>
+
+<div class="form-row">
+  <label for="labelInput">ラベル</label>
+  <input type="text" id="labelInput" placeholder="任意">
+</div>
+
+<button onclick="addTimer()">タイマー追加</button>
+
+<div id="timerList"></div>
+
 <script>
+/* =========================
+   header読み込み（既存維持）
+========================= */
 fetch("header.html")
   .then(res => res.text())
   .then(data => {
     document.getElementById("header").innerHTML = data;
-  })
-  .catch(err => console.error("ヘッダー読み込み失敗:", err));
-</script>
+  });
 
-<main>
+/* =========================
+   時間パース（新規）
+========================= */
+function parseTimeFlexible(input) {
+  if (!input) return null;
 
-<h2>簡易複数タイマー</h2>
+  input = input.trim();
 
-<!-- 入力エリア -->
-<div class="form-row">
-  <label>ラベル</label>
-  <input type="text" id="memo" placeholder="メモ的に使う欄">
-</div>
+  // コロンあり
+  if (input.includes(':')) {
+    const parts = input.split(':').map(Number);
 
-<div class="form-row">
-  <label>時間</label>
+    if (parts.length === 3) {
+      return parts[0]*3600 + parts[1]*60 + parts[2];
+    }
+    if (parts.length === 2) {
+      return parts[0]*60 + parts[1];
+    }
+    return null;
+  }
 
-  <input type="number" id="hours" value="0" min="0" class="small-input">
-  <span>時</span>
+  // 数字のみ
+  if (!/^\d+$/.test(input)) return null;
 
-  <input type="number" id="minutes" value="0" min="0" class="small-input">
-  <span>分</span>
+  const str = input.padStart(6, '0');
 
-  <input type="number" id="seconds" value="10" min="0" class="small-input">
-  <span>秒</span>
-</div>
+  const h = Number(str.slice(0, -4)) || 0;
+  const m = Number(str.slice(-4, -2));
+  const s = Number(str.slice(-2));
 
-<button onclick="addTimer()">追加</button>
+  if (m >= 60 || s >= 60) return null;
 
-<h3>タイマー一覧</h3>
-<ul id="timerList"></ul>
+  return h*3600 + m*60 + s;
+}
 
-<h3>通知</h3>
-<div id="notifications"></div>
+/* =========================
+   フォーマット（新規）
+========================= */
+function formatTime(h, m, s) {
+  return String(h).padStart(2,'0') + ":" +
+         String(m).padStart(2,'0') + ":" +
+         String(s).padStart(2,'0');
+}
 
-</main>
+/* =========================
+   入力整形（blur時）
+========================= */
+const timeInput = document.getElementById("timeInput");
 
-<script>
-let timerId = 0;
+timeInput.addEventListener("blur", () => {
+  const sec = parseTimeFlexible(timeInput.value);
+  if (sec === null) return;
 
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+
+  timeInput.value = formatTime(h, m, s);
+});
+
+/* =========================
+   タイマー処理（既存ベース）
+========================= */
 function addTimer() {
-  const memo = document.getElementById("memo").value.trim() || "（ラベルなし）";
-  const hours = parseInt(document.getElementById("hours").value, 10) || 0;
-  const minutes = parseInt(document.getElementById("minutes").value, 10) || 0;
-  const seconds = parseInt(document.getElementById("seconds").value, 10) || 0;
+  const input = document.getElementById("timeInput").value;
+  const label = document.getElementById("labelInput").value;
 
-  const totalMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
+  const totalSeconds = parseTimeFlexible(input);
 
-  if (totalMs <= 0) {
-    alert("1秒以上を設定してください");
+  if (totalSeconds === null || totalSeconds <= 0) {
+    alert("時間形式が不正です");
     return;
   }
 
-  const now = new Date();
-  const target = new Date(now.getTime() + totalMs);
+  const endTime = Date.now() + totalSeconds * 1000;
 
-  const li = document.createElement("li");
-  li.className = "timer-item";
-  const id = ++timerId;
+  const item = document.createElement("div");
+  item.className = "timer-item";
 
-  li.innerHTML = `
-    タイマー${id}【${memo}】：${hours}時間 ${minutes}分 ${seconds}秒後 → ${target.toLocaleTimeString()}
-    <span class="remain">(残り: 計算中...)</span>
-  `;
+  const labelSpan = document.createElement("span");
+  labelSpan.textContent = label ? label + " " : "";
 
-  document.getElementById("timerList").appendChild(li);
+  const remainSpan = document.createElement("span");
+  remainSpan.className = "remain";
 
-  const remainSpan = li.querySelector(".remain");
+  item.appendChild(labelSpan);
+  item.appendChild(remainSpan);
 
-  function updateRemain() {
-    const now = new Date();
-    const diff = target - now;
+  document.getElementById("timerList").appendChild(item);
+
+  function update() {
+    const diff = Math.floor((endTime - Date.now()) / 1000);
 
     if (diff <= 0) {
-      clearInterval(interval);
-      remainSpan.textContent = "(終了)";
-
-      const note = document.createElement("div");
-      note.className = "notify";
-      note.textContent = `✅ タイマー${id}【${memo}】：${target.toLocaleTimeString()} になりました！`;
-
-      document.getElementById("notifications").prepend(note);
-
-    } else {
-      const sec = Math.floor(diff / 1000);
-      const h = Math.floor(sec / 3600);
-      const m = Math.floor((sec % 3600) / 60);
-      const s = sec % 60;
-
-      let remainText = "";
-      if (h > 0) {
-        remainText = `${h}時間${m}分${s}秒`;
-      } else if (m > 0) {
-        remainText = `${m}分${s}秒`;
-      } else {
-        remainText = `${s}秒`;
-      }
-
-      remainSpan.textContent = `(残り: ${remainText})`;
+      remainSpan.textContent = "終了";
+      item.classList.add("notify");
+      return;
     }
+
+    const h = Math.floor(diff / 3600);
+    const m = Math.floor((diff % 3600) / 60);
+    const s = diff % 60;
+
+    remainSpan.textContent = formatTime(h, m, s);
+
+    requestAnimationFrame(update);
   }
 
-  updateRemain();
-  const interval = setInterval(updateRemain, 1000);
+  update();
 }
 </script>
 
