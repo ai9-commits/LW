@@ -53,7 +53,10 @@ function formatHMS(date) {
 document.getElementById('calcBtn').addEventListener('click', () => {
   const n = parseInt(document.getElementById('input1').value, 10);
   const m = parseInt(document.getElementById('input2').value, 10);
-
+  gtag('event', 'addcalc_run', {
+   count: n,
+   minutes: m
+  });
   if (isNaN(n)) {
     alert('数値を入力してください');
     return;
