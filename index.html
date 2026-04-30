@@ -163,12 +163,15 @@ function calculate(){
   });
 }
 </script>
-
-<footer style="margin-top:1.5em; font-size:0.7em; color:#555; border-top:1px solid #ccc;">
-  <p>作成: とうふゃ#1611</p>
-  <p>文責: 個人作成ツールのため、計算結果の正確性は保証しません</p>
-</footer>
-
 </main>
+ <div id="footer"></div>
+
+ <script>
+ fetch("footer.html")
+   .then(res => res.text())
+   .then(data => {
+     document.getElementById("footer").innerHTML = data;
+   });
+</script>
 </body>
 </html>
