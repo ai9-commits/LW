@@ -128,7 +128,7 @@ function addTimer() {
   const input = timeInput.value;
 
   const sec = parseTimeFlexible(input);
-
+  gtag('event', 'timer_add', { seconds: sec });
   if (!sec || sec <= 0) {
     alert("時間形式が不正です");
     return;
@@ -152,6 +152,7 @@ function addTimer() {
    削除
 ========================= */
 function removeTimer(id) {
+  gtag('event', 'timer_remove');
   const i = timers.findIndex(t => t.id === id);
   if (i === -1) return;
 
