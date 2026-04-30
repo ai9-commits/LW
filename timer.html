@@ -9,7 +9,6 @@
 
 <body>
 
-<!-- ヘッダー -->
 <div id="header"></div>
 <script>
 fetch("header.html")
@@ -24,7 +23,6 @@ fetch("header.html")
 
 <h2>簡易複数タイマー</h2>
 
-<!-- 入力エリア -->
 <div class="form-row">
   <label>ラベル</label>
   <input type="text" id="memo" placeholder="メモ的に使う欄">
@@ -32,12 +30,9 @@ fetch("header.html")
 
 <div class="form-row">
   <label>時間</label>
-  <input
-    type="text"
-    id="timeInput"
+  <input type="text" id="timeInput"
     placeholder="例: 5:30 / 530 / 00:05:30"
-    inputmode="numeric"
-  >
+    inputmode="numeric">
 </div>
 
 <button onclick="addTimer()">追加</button>
@@ -45,40 +40,38 @@ fetch("header.html")
 <h3>タイマー一覧</h3>
 <ul id="timerList"></ul>
 
-<h3>完了</h3>
+<h3 id="finishedToggle" style="cursor:pointer;">
+  完了（0件）▼
+</h3>
+<ul id="finishedList" style="display:none;"></ul>
+
+<h3>通知</h3>
 <div id="notifications"></div>
 
 </main>
 
 <script>
 let timerId = 0;
+let timers = [];
+let finishedOpen = false;
 
 /* =========================
    時間パース
 ========================= */
 function parseTimeFlexible(input) {
   if (!input) return null;
-
   input = input.trim();
 
-  // コロンあり
   if (input.includes(':')) {
-    const parts = input.split(':').map(Number);
-
-    if (parts.length === 3) {
-      return parts[0]*3600 + parts[1]*60 + parts[2];
-    }
-    if (parts.length === 2) {
-      return parts[0]*60 + parts[1];
-    }
+    const p = input.split(':').map(Number);
+    if (p.length === 3) return p[0]*3600 + p[1]*60 + p[2];
+    if (p.length === 2) return p[0]*60 + p[1];
     return null;
   }
 
-  // 数字のみ
   if (!/^\d+$/.test(input)) return null;
 
   const str = input.padStart(6, '0');
-
   const h = Number(str.slice(0, -4)) || 0;
   const m = Number(str.slice(-4, -2));
   const s = Number(str.slice(-2));
@@ -88,13 +81,10 @@ function parseTimeFlexible(input) {
   return h*3600 + m*60 + s;
 }
 
-/* =========================
-   表示フォーマット
-========================= */
-function formatTime(totalSeconds) {
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
+function formatTime(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
 
   return String(h).padStart(2,'0') + ":" +
          String(m).padStart(2,'0') + ":" +
@@ -102,71 +92,176 @@ function formatTime(totalSeconds) {
 }
 
 /* =========================
-   入力自動整形
+   入力整形
 ========================= */
 const timeInput = document.getElementById("timeInput");
 
 timeInput.addEventListener("blur", () => {
   const sec = parseTimeFlexible(timeInput.value);
-  if (sec === null) return;
-  timeInput.value = formatTime(sec);
+  if (sec !== null) timeInput.value = formatTime(sec);
 });
+
+/* =========================
+   永続化
+========================= */
+function saveTimers() {
+  localStorage.setItem("timers", JSON.stringify(timers));
+}
+
+function loadTimers() {
+  const data = localStorage.getItem("timers");
+  if (!data) return;
+
+  timers = JSON.parse(data);
+
+  // interval初期化
+  timers.forEach(t => t.interval = null);
+
+  timerId = timers.reduce((max, t) => Math.max(max, t.id), 0);
+}
 
 /* =========================
    タイマー追加
 ========================= */
 function addTimer() {
   const memo = document.getElementById("memo").value.trim() || "（ラベルなし）";
-  const input = document.getElementById("timeInput").value;
+  const input = timeInput.value;
 
-  const totalSeconds = parseTimeFlexible(input);
+  const sec = parseTimeFlexible(input);
 
-  if (totalSeconds === null || totalSeconds <= 0) {
+  if (!sec || sec <= 0) {
     alert("時間形式が不正です");
     return;
   }
 
-  const totalMs = totalSeconds * 1000;
+  const target = Date.now() + sec * 1000;
 
-  const now = new Date();
-  const target = new Date(now.getTime() + totalMs);
+  timers.push({
+    id: ++timerId,
+    memo,
+    target,
+    interval: null,
+    endGraceUntil: null
+  });
 
-  const li = document.createElement("li");
-  li.className = "timer-item";
-  const id = ++timerId;
+  saveTimers();
+  renderTimers();
+}
 
-  li.innerHTML = `
-    タイマー${id}【${memo}】：${formatTime(totalSeconds)} 後 → ${target.toLocaleTimeString()}
-    <span class="remain">(残り: 計算中...)</span>
-  `;
+/* =========================
+   削除
+========================= */
+function removeTimer(id) {
+  const i = timers.findIndex(t => t.id === id);
+  if (i === -1) return;
 
-  document.getElementById("timerList").appendChild(li);
-
-  const remainSpan = li.querySelector(".remain");
-
-  function updateRemain() {
-    const now = new Date();
-    const diff = target - now;
-
-    if (diff <= 0) {
-      clearInterval(interval);
-      remainSpan.textContent = "(終了)";
-
-      const note = document.createElement("div");
-      note.className = "notify";
-      note.textContent = `✅ タイマー${id}【${memo}】：${target.toLocaleTimeString()} になりました！`;
-
-      document.getElementById("notifications").prepend(note);
-
-    } else {
-      const sec = Math.floor(diff / 1000);
-      remainSpan.textContent = `(残り: ${formatTime(sec)})`;
-    }
+  if (timers[i].interval) {
+    clearInterval(timers[i].interval);
   }
 
-  updateRemain();
-  const interval = setInterval(updateRemain, 1000);
+  timers.splice(i, 1);
+  saveTimers();
+  renderTimers();
 }
+
+/* =========================
+   トグル
+========================= */
+document.getElementById("finishedToggle").onclick = () => {
+  finishedOpen = !finishedOpen;
+  document.getElementById("finishedList").style.display =
+    finishedOpen ? "block" : "none";
+};
+
+/* =========================
+   描画
+========================= */
+function renderTimers() {
+
+  timers.forEach(t => {
+    if (t.interval) {
+      clearInterval(t.interval);
+      t.interval = null;
+    }
+  });
+
+  const now = Date.now();
+  const active = [];
+  const finished = [];
+
+  timers.forEach(t => {
+    if (now <= t.target) {
+      active.push(t);
+    } else {
+      if (!t.endGraceUntil) {
+        t.endGraceUntil = t.target + 5 * 60 * 1000;
+      }
+
+      if (now <= t.endGraceUntil) {
+        active.push(t);
+      } else {
+        finished.push(t);
+      }
+    }
+  });
+
+  active.sort((a,b) => a.target - b.target);
+  finished.sort((a,b) => b.target - a.target);
+
+  drawList("timerList", active);
+  drawList("finishedList", finished);
+
+  document.getElementById("finishedToggle").textContent =
+    `完了（${finished.length}件）` + (finishedOpen ? "▲" : "▼");
+
+  saveTimers();
+}
+
+function drawList(id, list) {
+  const ul = document.getElementById(id);
+  ul.innerHTML = "";
+
+  list.forEach(t => {
+    const li = document.createElement("li");
+    li.className = "timer-item";
+
+    li.innerHTML = `
+      タイマー${t.id}【${t.memo}】 →
+      ${new Date(t.target).toLocaleTimeString()}
+      <span class="remain">(残り: 計算中...)</span>
+      <button onclick="removeTimer(${t.id})">削除</button>
+    `;
+
+    ul.appendChild(li);
+
+    const remain = li.querySelector(".remain");
+
+    function update() {
+      const diff = t.target - Date.now();
+
+      if (diff <= 0) {
+        clearInterval(t.interval);
+        t.interval = null;
+
+        remain.textContent = "(終了)";
+      } else {
+        remain.textContent =
+          "(残り: " + formatTime(Math.floor(diff/1000)) + ")";
+      }
+    }
+
+    update();
+    t.interval = setInterval(update, 1000);
+  });
+}
+
+/* =========================
+   初期化
+========================= */
+loadTimers();
+renderTimers();
+setInterval(renderTimers, 10000);
+
 </script>
 
 </body>
