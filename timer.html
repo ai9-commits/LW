@@ -80,6 +80,57 @@ let timers = [];
 let finishedOpen = false;
 
 /* =========================
+   音声（iPhone対策込み）
+========================= */
+let audioCtx = null;
+
+function initAudio() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+
+    if (!audioCtx) {
+      audioCtx = new AC();
+    }
+
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+
+  } catch(e) {
+    console.log("audio unavailable");
+  }
+}
+
+function beepAt(startTime) {
+  if (!audioCtx) return;
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = "sine";
+  osc.frequency.value = 880;
+
+  gain.gain.setValueAtTime(0.001, startTime);
+  gain.gain.exponentialRampToValueAtTime(0.03, startTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.14);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start(startTime);
+  osc.stop(startTime + 0.15);
+}
+
+function playBeepTwice() {
+  if (!audioCtx) return;
+
+  const now = audioCtx.currentTime;
+
+  beepAt(now);
+  beepAt(now + 0.25);
+}
+
+/* =========================
    時間パース（残り時間）
 ========================= */
 function parseTimeFlexible(input) {
@@ -181,6 +232,8 @@ function getMode() {
 }
 
 const timeInput = document.getElementById("timeInput");
+
+/* Enter追加 */
 timeInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.isComposing) {
     e.preventDefault();
@@ -248,6 +301,8 @@ function loadTimers() {
 ========================= */
 function addTimer() {
 
+  initAudio(); // iPhone対策
+
   const memo =
     document.getElementById("memo").value.trim() || "（ラベルなし）";
 
@@ -291,7 +346,8 @@ function addTimer() {
     memo,
     target,
     interval: null,
-    endGraceUntil: null
+    endGraceUntil: null,
+    completed: false
   });
 
   saveTimers();
@@ -419,7 +475,13 @@ function drawList(id, list) {
         t.interval = null;
 
         remain.textContent = "(終了)";
-        gtag("event", "timer_complete");
+
+        if (!t.completed) {
+          t.completed = true;
+          playBeepTwice();
+          gtag("event", "timer_complete");
+          saveTimers();
+        }
 
       } else {
 
