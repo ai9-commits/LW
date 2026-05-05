@@ -399,7 +399,7 @@ function drawList(id, list) {
     li.className = "timer-item";
 
     li.innerHTML = `
-      タイマー${t.id}【${t.memo}】 →
+      timer${t.id}【${t.memo}】 →
       ${new Date(t.target).toLocaleTimeString()}
       <span class="remain">(残り: 計算中...)</span>
       <button class="btn-danger" onclick="removeTimer(${t.id})">削除</button>
