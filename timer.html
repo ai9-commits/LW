@@ -41,15 +41,8 @@ fetch("header.html")
 
 <!-- モード -->
 <div class="form-row">
-  <label>
-    <input type="radio" name="mode" value="duration" checked>
-    残り時間
-  </label>
-
-  <label>
-    <input type="radio" name="mode" value="target">
-    指定時刻
-  </label>
+  <label><input type="radio" name="mode" value="duration" checked> 残り時間</label>
+  <label><input type="radio" name="mode" value="target"> 指定時刻</label>
 </div>
 
 <!-- 時間入力 -->
@@ -60,6 +53,21 @@ fetch("header.html")
     id="timeInput"
     placeholder="例: 5:30 / 530 / 00:05:30"
     inputmode="numeric">
+</div>
+
+<!-- 音設定 -->
+<div class="form-row">
+  <label>
+    <input type="checkbox" id="soundEnabled" checked>
+    音を鳴らす
+  </label>
+
+  <button
+    type="button"
+    class="btn-secondary"
+    id="testSoundBtn">
+    試聴
+  </button>
 </div>
 
 <button class="btn-primary" onclick="addTimer()">追加</button>
@@ -125,10 +133,26 @@ function playBeepTwice() {
   if (!audioCtx) return;
 
   const now = audioCtx.currentTime;
-
   beepAt(now);
   beepAt(now + 0.25);
 }
+
+/* =========================
+   要素取得
+========================= */
+const timeInput = document.getElementById("timeInput");
+const soundEnabled = document.getElementById("soundEnabled");
+const testSoundBtn = document.getElementById("testSoundBtn");
+
+/* 試聴 */
+testSoundBtn.addEventListener("click", () => {
+  initAudio();
+  playBeepTwice();
+
+  if (typeof gtag === "function") {
+    gtag("event", "timer_sound_test");
+  }
+});
 
 /* =========================
    時間パース（残り時間）
@@ -212,7 +236,7 @@ function parseTargetTime(input) {
 }
 
 /* =========================
-   表示用フォーマット
+   共通
 ========================= */
 function formatTime(sec) {
   const h = Math.floor(sec / 3600);
@@ -224,14 +248,9 @@ function formatTime(sec) {
          String(s).padStart(2, "0");
 }
 
-/* =========================
-   モード取得
-========================= */
 function getMode() {
   return document.querySelector('input[name="mode"]:checked').value;
 }
-
-const timeInput = document.getElementById("timeInput");
 
 /* Enter追加 */
 timeInput.addEventListener("keydown", (e) => {
@@ -242,7 +261,7 @@ timeInput.addEventListener("keydown", (e) => {
 });
 
 /* =========================
-   モードUI更新
+   UI更新
 ========================= */
 function updateModeUI() {
   const mode = getMode();
@@ -260,9 +279,7 @@ document.querySelectorAll('input[name="mode"]').forEach(r => {
   r.addEventListener("change", updateModeUI);
 });
 
-/* =========================
-   入力整形
-========================= */
+/* 入力整形 */
 timeInput.addEventListener("blur", () => {
   if (getMode() !== "duration") return;
 
@@ -280,9 +297,6 @@ function saveTimers() {
   localStorage.setItem("timers", JSON.stringify(timers));
 }
 
-/* =========================
-   読込
-========================= */
 function loadTimers() {
   const data = localStorage.getItem("timers");
   if (!data) return;
@@ -291,17 +305,33 @@ function loadTimers() {
 
   timers.forEach(t => {
     t.interval = null;
+    if (t.completed === undefined) t.completed = false;
   });
 
   timerId = timers.reduce((max, t) => Math.max(max, t.id), 0);
 }
+
+function loadSoundSetting() {
+  const v = localStorage.getItem("timer_sound");
+
+  if (v !== null) {
+    soundEnabled.checked = (v === "1");
+  }
+}
+
+soundEnabled.addEventListener("change", () => {
+  localStorage.setItem(
+    "timer_sound",
+    soundEnabled.checked ? "1" : "0"
+  );
+});
 
 /* =========================
    追加
 ========================= */
 function addTimer() {
 
-  initAudio(); // iPhone対策
+  initAudio();
 
   const memo =
     document.getElementById("memo").value.trim() || "（ラベルなし）";
@@ -336,10 +366,12 @@ function addTimer() {
     secForLog = Math.floor((target - Date.now()) / 1000);
   }
 
-  gtag("event", "timer_add", {
-    mode: mode,
-    seconds: secForLog
-  });
+  if (typeof gtag === "function") {
+    gtag("event", "timer_add", {
+      mode: mode,
+      seconds: secForLog
+    });
+  }
 
   timers.push({
     id: ++timerId,
@@ -362,7 +394,9 @@ function addTimer() {
 ========================= */
 function removeTimer(id) {
 
-  gtag("event", "timer_remove");
+  if (typeof gtag === "function") {
+    gtag("event", "timer_remove");
+  }
 
   const i = timers.findIndex(t => t.id === id);
   if (i === -1) return;
@@ -404,7 +438,6 @@ function renderTimers() {
   });
 
   const now = Date.now();
-
   const active = [];
   const finished = [];
 
@@ -478,8 +511,15 @@ function drawList(id, list) {
 
         if (!t.completed) {
           t.completed = true;
-          playBeepTwice();
-          gtag("event", "timer_complete");
+
+          if (soundEnabled.checked) {
+            playBeepTwice();
+          }
+
+          if (typeof gtag === "function") {
+            gtag("event", "timer_complete");
+          }
+
           saveTimers();
         }
 
@@ -499,6 +539,7 @@ function drawList(id, list) {
    初期化
 ========================= */
 loadTimers();
+loadSoundSetting();
 updateModeUI();
 renderTimers();
 
@@ -514,6 +555,5 @@ fetch("footer.html")
     document.getElementById("footer").innerHTML = data;
   });
 </script>
-
 </body>
 </html>
