@@ -91,6 +91,8 @@ button {
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--text);
+
+  border-radius: 6px;
 }
 
 /* =========================
@@ -173,7 +175,8 @@ td.diff {
 
 .remain {
   color: var(--danger);
-  margin-left: 10px;
+  margin-left: 4px;
+  white-space: nowrap;
 }
 
 .notify {
@@ -185,7 +188,104 @@ td.diff {
 }
 
 /* =========================
-   ⑧ ナビ
+   ⑧ compact timer UI
+========================= */
+.compact-row {
+  gap: 8px;
+}
+
+.memo-mini {
+  width: 5em;
+  min-width: 5em;
+}
+
+.time-input {
+  flex: 1;
+  min-width: 10em;
+}
+
+.volume-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.volume-group label,
+.label-option {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.compact-add {
+  margin-top: 0;
+}
+
+.tool-row {
+  margin-top: 0.5em;
+}
+
+.clear-button {
+  opacity: 0.82;
+  font-size: 0.9em;
+}
+
+.mini-button {
+  width: auto;
+  margin-top: 0;
+  padding: 0.3em 0.6em;
+  font-size: 0.9em;
+  height: auto;
+}
+
+.icon-button {
+  min-width: 2.2em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.compact-timer-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 0.4em;
+
+  background: var(--card);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.timer-label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.timer-target {
+  color: var(--subtext);
+  white-space: nowrap;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ラベル選択 */
+.emoji-option span {
+  font-size: 1.05em;
+}
+
+.text-option span {
+  font-size: 0.95em;
+}
+
+/* =========================
+   ⑨ ナビ
 ========================= */
 .main-nav ul {
   display: flex;
@@ -209,7 +309,7 @@ td.diff {
 }
 
 /* =========================
-   ⑨ フッター
+   ⑩ フッター
 ========================= */
 .site-footer {
   margin-top: 40px;
@@ -241,7 +341,9 @@ td.diff {
   color: var(--primary);
   text-decoration: none;
   opacity: 0.82;
-  transition: opacity 0.15s ease, color 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease;
 }
 
 .support-link:hover {
@@ -263,7 +365,7 @@ td.diff {
 }
 
 /* =========================
-   ⑩ スマホ対応
+   ⑪ スマホ対応
 ========================= */
 @media (max-width: 600px) {
 
@@ -275,6 +377,26 @@ td.diff {
   input,
   button {
     width: 100%;
+  }
+
+  .compact-row {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .compact-row input,
+  .compact-row button {
+    width: auto;
+  }
+
+  .compact-timer-item {
+    gap: 4px;
+    font-size: 0.95em;
+  }
+
+  .time-input {
+    min-width: 8em;
   }
 
   .footer-inner {
@@ -293,10 +415,15 @@ td.diff {
 }
 
 /* =========================
-   ⑪ ダーク時微調整
+   ⑫ ダーク時微調整
 ========================= */
 @media (prefers-color-scheme: dark) {
+
   .support-link {
     opacity: 0.9;
+  }
+
+  .compact-timer-item {
+    border: 1px solid rgba(255,255,255,0.05);
   }
 }
