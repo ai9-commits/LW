@@ -34,43 +34,106 @@ fetch("header.html")
 <h2>簡易複数タイマー</h2>
 
 <!-- ラベル -->
-<div class="form-row">
-  <label for="memo">ラベル</label>
-  <input type="text" id="memo" placeholder="メモ的に使う欄">
+<div class="form-row compact-row">
+
+  <label class="label-option text-option">
+    <input type="radio" name="labelType" value="text" checked>
+    <span>文字</span>
+  </label>
+
+  <input
+    type="text"
+    id="memoText"
+    class="memo-mini"
+    maxlength="5"
+    placeholder="メモ">
+
+  <label class="label-option emoji-option">
+    <input type="radio" name="labelType" value="🎁">
+    <span>🎁</span>
+  </label>
+
+  <label class="label-option emoji-option">
+    <input type="radio" name="labelType" value="🛡️">
+    <span>🛡️</span>
+  </label>
+
+  <label class="label-option emoji-option">
+    <input type="radio" name="labelType" value="⚔️">
+    <span>⚔️</span>
+  </label>
+
+  <label class="label-option emoji-option">
+    <input type="radio" name="labelType" value="💰">
+    <span>💰</span>
+  </label>
+
+  <label class="label-option emoji-option">
+    <input type="radio" name="labelType" value="🍙">
+    <span>🍙</span>
+  </label>
+
 </div>
 
 <!-- モード -->
-<div class="form-row">
-  <label><input type="radio" name="mode" value="duration" checked> 残り時間</label>
-  <label><input type="radio" name="mode" value="target"> 指定時刻</label>
+<div class="form-row compact-row">
+  <label><input type="radio" name="mode" value="duration" checked> 残り</label>
+  <label><input type="radio" name="mode" value="target"> 時刻</label>
 </div>
 
 <!-- 時間入力 -->
-<div class="form-row">
-  <label for="timeInput">時間</label>
+<div class="form-row compact-row">
+
   <input
     type="text"
     id="timeInput"
-    placeholder="例: 5:30 / 530 / 00:05:30"
-    inputmode="numeric">
-</div>
-
-<!-- 音設定 -->
-<div class="form-row">
-  <label>
-    <input type="checkbox" id="soundEnabled" checked>
-    音を鳴らす
-  </label>
+    placeholder="5:30 / 530 / 00:05:30"
+    inputmode="numeric"
+    class="time-input">
 
   <button
     type="button"
-    class="btn-secondary"
-    id="testSoundBtn">
-    試聴
+    class="mini-button icon-button"
+    id="testSoundBtn"
+    title="試聴">
+    ▶
   </button>
+
+  <div class="volume-group">
+
+    <label>
+      <input type="radio" name="volume" value="0">
+      🔇
+    </label>
+
+    <label>
+      <input type="radio" name="volume" value="0.02">
+      🔈
+    </label>
+
+    <label>
+      <input type="radio" name="volume" value="0.05" checked>
+      🔉
+    </label>
+
+    <label>
+      <input type="radio" name="volume" value="0.09">
+      🔊
+    </label>
+
+  </div>
+
+  <button class="btn-primary compact-add" onclick="addTimer()">
+    追加
+  </button>
+
 </div>
 
-<button class="btn-primary" onclick="addTimer()">追加</button>
+<div class="tool-row">
+  <button class="clear-button" id="clearAllBtn">
+    オールクリア
+  </button>
+</div>
 
 <h3>タイマー一覧</h3>
 <ul id="timerList"></ul>
@@ -88,7 +151,7 @@ let timers = [];
 let finishedOpen = false;
 
 /* =========================
-   音声（iPhone対策込み）
+   音声
 ========================= */
 let audioCtx = null;
 
@@ -109,8 +172,20 @@ function initAudio() {
   }
 }
 
+function getVolumeLevel() {
+  const selected =
+    document.querySelector('input[name="volume"]:checked');
+
+  return selected ? Number(selected.value) : 0.05;
+}
+
 function beepAt(startTime) {
+
   if (!audioCtx) return;
+
+  const volume = getVolumeLevel();
+
+  if (volume <= 0) return;
 
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -119,7 +194,7 @@ function beepAt(startTime) {
   osc.frequency.value = 880;
 
   gain.gain.setValueAtTime(0.001, startTime);
-  gain.gain.exponentialRampToValueAtTime(0.03, startTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.01);
   gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.14);
 
   osc.connect(gain);
@@ -130,22 +205,103 @@ function beepAt(startTime) {
 }
 
 function playBeepTwice() {
+
   if (!audioCtx) return;
 
   const now = audioCtx.currentTime;
+
   beepAt(now);
   beepAt(now + 0.25);
 }
 
 /* =========================
-   要素取得
+   要素
 ========================= */
 const timeInput = document.getElementById("timeInput");
-const soundEnabled = document.getElementById("soundEnabled");
 const testSoundBtn = document.getElementById("testSoundBtn");
+const memoText = document.getElementById("memoText");
+
+/* =========================
+   ラベルUI
+========================= */
+function updateLabelUI() {
+
+  const selected =
+    document.querySelector('input[name="labelType"]:checked');
+
+  const isText = selected.value === "text";
+
+  memoText.disabled = !isText;
+
+  if (!isText) {
+    memoText.value = "";
+  }
+}
+
+/* =========================
+   試聴ボタン状態
+========================= */
+function updateTestButtonState() {
+
+  const muted = getVolumeLevel() === 0;
+
+  testSoundBtn.disabled = muted;
+
+  testSoundBtn.title = muted ? "ミュート中" : "試聴";
+}
+
+/* =========================
+   音量保存
+========================= */
+function saveVolumeSetting() {
+
+  const selected =
+    document.querySelector('input[name="volume"]:checked');
+
+  if (!selected) return;
+
+  localStorage.setItem("timer_volume", selected.value);
+}
+
+function loadVolumeSetting() {
+
+  const saved = localStorage.getItem("timer_volume");
+
+  if (!saved) return;
+
+  const target = document.querySelector(
+    `input[name="volume"][value="${saved}"]`
+  );
+
+  if (target) {
+    target.checked = true;
+  }
+}
+
+/* volume change */
+document
+  .querySelectorAll('input[name="volume"]')
+  .forEach(radio => {
+
+    radio.addEventListener("change", () => {
+      saveVolumeSetting();
+      updateTestButtonState();
+    });
+
+});
+
+/* label change */
+document
+  .querySelectorAll('input[name="labelType"]')
+  .forEach(radio => {
+
+    radio.addEventListener("change", updateLabelUI);
+
+});
 
 /* 試聴 */
 testSoundBtn.addEventListener("click", () => {
+
   initAudio();
   playBeepTwice();
 
@@ -155,18 +311,25 @@ testSoundBtn.addEventListener("click", () => {
 });
 
 /* =========================
-   時間パース（残り時間）
+   時間パース
 ========================= */
 function parseTimeFlexible(input) {
+
   if (!input) return null;
 
   input = input.trim();
 
   if (input.includes(":")) {
+
     const p = input.split(":").map(Number);
 
-    if (p.length === 3) return p[0] * 3600 + p[1] * 60 + p[2];
-    if (p.length === 2) return p[0] * 60 + p[1];
+    if (p.length === 3) {
+      return p[0] * 3600 + p[1] * 60 + p[2];
+    }
+
+    if (p.length === 2) {
+      return p[0] * 60 + p[1];
+    }
 
     return null;
   }
@@ -188,6 +351,7 @@ function parseTimeFlexible(input) {
    指定時刻パース
 ========================= */
 function parseTargetTime(input) {
+
   if (!input) return null;
 
   input = input.trim();
@@ -197,16 +361,19 @@ function parseTargetTime(input) {
   let s = 0;
 
   if (input.includes(":")) {
+
     const p = input.split(":").map(Number);
 
     if (p.length === 2) {
       h = p[0];
       m = p[1];
-    } else if (p.length === 3) {
+    }
+    else if (p.length === 3) {
       h = p[0];
       m = p[1];
       s = p[2];
-    } else {
+    }
+    else {
       return null;
     }
 
@@ -239,6 +406,7 @@ function parseTargetTime(input) {
    共通
 ========================= */
 function formatTime(sec) {
+
   const h = Math.floor(sec / 3600);
   const m = Math.floor((sec % 3600) / 60);
   const s = sec % 60;
@@ -252,8 +420,15 @@ function getMode() {
   return document.querySelector('input[name="mode"]:checked').value;
 }
 
-/* Enter追加 */
+function formatTimerId(id) {
+  return String(id).padStart(2, "0");
+}
+
+/* =========================
+   Enter追加
+========================= */
 timeInput.addEventListener("keydown", (e) => {
+
   if (e.key === "Enter" && !e.isComposing) {
     e.preventDefault();
     addTimer();
@@ -261,26 +436,31 @@ timeInput.addEventListener("keydown", (e) => {
 });
 
 /* =========================
-   UI更新
+   モードUI
 ========================= */
 function updateModeUI() {
+
   const mode = getMode();
 
   if (mode === "duration") {
-    timeInput.placeholder = "例: 5:30 / 530 / 00:05:30";
-  } else {
-    timeInput.placeholder = "例: 18:30 / 1830 / 18:30:15";
+    timeInput.placeholder = "5:30 / 530 / 00:05:30";
+  }
+  else {
+    timeInput.placeholder = "18:30 / 1830 / 18:30:15";
   }
 
   timeInput.value = "";
 }
 
-document.querySelectorAll('input[name="mode"]').forEach(r => {
-  r.addEventListener("change", updateModeUI);
-});
+document
+  .querySelectorAll('input[name="mode"]')
+  .forEach(r => {
+    r.addEventListener("change", updateModeUI);
+  });
 
-/* 入力整形 */
+/* blur整形 */
 timeInput.addEventListener("blur", () => {
+
   if (getMode() !== "duration") return;
 
   const sec = parseTimeFlexible(timeInput.value);
@@ -294,37 +474,41 @@ timeInput.addEventListener("blur", () => {
    保存
 ========================= */
 function saveTimers() {
-  localStorage.setItem("timers", JSON.stringify(timers));
+
+  const saveData = timers.map(t => ({
+    id: t.id,
+    labelType: t.labelType,
+    labelText: t.labelText,
+    target: t.target,
+    completed: t.completed,
+    endGraceUntil: t.endGraceUntil
+  }));
+
+  localStorage.setItem("timers_v2", JSON.stringify(saveData));
 }
 
 function loadTimers() {
-  const data = localStorage.getItem("timers");
+
+  const data = localStorage.getItem("timers_v2");
+
   if (!data) return;
 
-  timers = JSON.parse(data);
+  const loaded = JSON.parse(data);
 
-  timers.forEach(t => {
-    t.interval = null;
-    if (t.completed === undefined) t.completed = false;
-  });
+  const now = Date.now();
 
-  timerId = timers.reduce((max, t) => Math.max(max, t.id), 0);
-}
+  timers = loaded
+    .filter(t => now <= t.target + 5 * 60 * 1000)
+    .map(t => ({
+      ...t,
+      interval: null
+    }));
 
-function loadSoundSetting() {
-  const v = localStorage.getItem("timer_sound");
-
-  if (v !== null) {
-    soundEnabled.checked = (v === "1");
-  }
-}
-
-soundEnabled.addEventListener("change", () => {
-  localStorage.setItem(
-    "timer_sound",
-    soundEnabled.checked ? "1" : "0"
+  timerId = timers.reduce(
+    (max, t) => Math.max(max, t.id),
+    0
   );
-});
+}
 
 /* =========================
    追加
@@ -333,8 +517,22 @@ function addTimer() {
 
   initAudio();
 
-  const memo =
-    document.getElementById("memo").value.trim() || "（ラベルなし）";
+  const selectedLabel =
+    document.querySelector('input[name="labelType"]:checked');
+
+  const labelType =
+    selectedLabel.value === "text" ? "text" : "emoji";
+
+  let labelText = "";
+
+  if (labelType === "text") {
+
+    labelText = memoText.value.trim() || "---";
+
+  } else {
+
+    labelText = selectedLabel.value;
+  }
 
   const input = timeInput.value.trim();
   const mode = getMode();
@@ -367,6 +565,7 @@ function addTimer() {
   }
 
   if (typeof gtag === "function") {
+
     gtag("event", "timer_add", {
       mode: mode,
       seconds: secForLog
@@ -375,7 +574,8 @@ function addTimer() {
 
   timers.push({
     id: ++timerId,
-    memo,
+    labelType,
+    labelText,
     target,
     interval: null,
     endGraceUntil: null,
@@ -399,6 +599,7 @@ function removeTimer(id) {
   }
 
   const i = timers.findIndex(t => t.id === id);
+
   if (i === -1) return;
 
   if (timers[i].interval) {
@@ -412,9 +613,35 @@ function removeTimer(id) {
 }
 
 /* =========================
+   オールクリア
+========================= */
+document
+  .getElementById("clearAllBtn")
+  .addEventListener("click", () => {
+
+    if (!confirm("保存済みタイマーをすべて削除しますか？")) {
+      return;
+    }
+
+    timers.forEach(t => {
+      if (t.interval) {
+        clearInterval(t.interval);
+      }
+    });
+
+    timers = [];
+    timerId = 0;
+
+    localStorage.removeItem("timers_v2");
+
+    renderTimers();
+  });
+
+/* =========================
    完了開閉
 ========================= */
 document.getElementById("finishedToggle").onclick = () => {
+
   finishedOpen = !finishedOpen;
 
   document.getElementById("finishedList").style.display =
@@ -431,6 +658,7 @@ document.getElementById("finishedToggle").onclick = () => {
 function renderTimers() {
 
   timers.forEach(t => {
+
     if (t.interval) {
       clearInterval(t.interval);
       t.interval = null;
@@ -438,6 +666,7 @@ function renderTimers() {
   });
 
   const now = Date.now();
+
   const active = [];
   const finished = [];
 
@@ -455,7 +684,8 @@ function renderTimers() {
 
       if (now <= t.endGraceUntil) {
         active.push(t);
-      } else {
+      }
+      else {
         finished.push(t);
       }
     }
@@ -480,18 +710,36 @@ function renderTimers() {
 function drawList(id, list) {
 
   const ul = document.getElementById(id);
+
   ul.innerHTML = "";
 
   list.forEach(t => {
 
     const li = document.createElement("li");
-    li.className = "timer-item";
+    li.className = "timer-item compact-timer-item";
+
+    const labelDisplay =
+      t.labelType === "text"
+        ? `【${t.labelText}】`
+        : t.labelText;
 
     li.innerHTML = `
-      timer${t.id}【${t.memo}】 →
-      ${new Date(t.target).toLocaleTimeString()}
+      <span class="timer-label">
+        #${formatTimerId(t.id)} ${labelDisplay}
+      </span>
+
+      <span class="timer-target">
+        ${new Date(t.target).toLocaleTimeString()}
+      </span>
+
       <span class="remain">(残り: 計算中...)</span>
-      <button class="btn-danger" onclick="removeTimer(${t.id})">削除</button>
+
+      <button
+        class="mini-button icon-button"
+        title="削除"
+        onclick="removeTimer(${t.id})">
+        🗑
+      </button>
     `;
 
     ul.appendChild(li);
@@ -510,9 +758,10 @@ function drawList(id, list) {
         remain.textContent = "(終了)";
 
         if (!t.completed) {
+
           t.completed = true;
 
-          if (soundEnabled.checked) {
+          if (getVolumeLevel() > 0) {
             playBeepTwice();
           }
 
@@ -526,11 +775,14 @@ function drawList(id, list) {
       } else {
 
         remain.textContent =
-          "(残り: " + formatTime(Math.floor(diff / 1000)) + ")";
+          "(残り: "
+          + formatTime(Math.floor(diff / 1000))
+          + ")";
       }
     }
 
     update();
+
     t.interval = setInterval(update, 1000);
   });
 }
@@ -539,8 +791,10 @@ function drawList(id, list) {
    初期化
 ========================= */
 loadTimers();
-loadSoundSetting();
+loadVolumeSetting();
 updateModeUI();
+updateLabelUI();
+updateTestButtonState();
 renderTimers();
 
 setInterval(renderTimers, 10000);
@@ -555,5 +809,6 @@ fetch("footer.html")
     document.getElementById("footer").innerHTML = data;
   });
 </script>
+
 </body>
 </html>
