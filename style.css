@@ -427,3 +427,15 @@ button:disabled {
     border: 1px solid rgba(255,255,255,0.05);
   }
 }
+.add-row {
+  justify-content: center;
+}
+
+.add-timer-button {
+  margin-top: 0;
+  width: 100%;
+  max-width: 320px;
+  font-size: 1rem;
+  height: auto;
+  padding: 0.8em 1em;
+}
