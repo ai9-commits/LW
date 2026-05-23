@@ -32,24 +32,11 @@ fetch("header.html")
 <main>
 
 <h2>簡易複数タイマー</h2>
-
 <!-- ラベル -->
 <div class="form-row compact-row">
 
-  <label class="label-option text-option">
-    <input type="radio" name="labelType" value="text" checked>
-    <span>文字</span>
-  </label>
-
-  <input
-    type="text"
-    id="memoText"
-    class="memo-mini"
-    maxlength="5"
-    placeholder="メモ">
-
   <label class="label-option emoji-option">
-    <input type="radio" name="labelType" value="🎁">
+    <input type="radio" name="labelType" value="🎁" checked>
     <span>🎁</span>
   </label>
 
@@ -73,16 +60,31 @@ fetch("header.html")
     <span>🍙</span>
   </label>
 
-</div>
+  <label class="label-option text-option">
+    <input type="radio" name="labelType" value="text">
+    <span>文字</span>
+  </label>
 
-<!-- モード -->
-<div class="form-row compact-row">
-  <label><input type="radio" name="mode" value="duration" checked> 残り</label>
-  <label><input type="radio" name="mode" value="target"> 時刻</label>
-</div>
+  <input
+    type="text"
+    id="memoText"
+    class="memo-mini"
+    maxlength="5"
+    placeholder="メモ">
 
-<!-- 時間入力 -->
+</div>
+<!-- モード＋時間 -->
 <div class="form-row compact-row">
+
+  <label>
+    <input type="radio" name="mode" value="duration" checked>
+    残り
+  </label>
+
+  <label>
+    <input type="radio" name="mode" value="target">
+    時刻
+  </label>
 
   <input
     type="text"
@@ -90,6 +92,11 @@ fetch("header.html")
     placeholder="5:30 / 530 / 00:05:30"
     inputmode="numeric"
     class="time-input">
+
+</div>
+
+<!-- 音量 -->
+<div class="form-row compact-row">
 
   <button
     type="button"
