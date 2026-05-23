@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>簡易複数タイマー</title>
+
 <link rel="stylesheet" href="style.css">
 
 <!-- Google Analytics -->
@@ -20,6 +21,7 @@ gtag('config', 'G-NWV2W1CSQT');
 
 <!-- header -->
 <div id="header"></div>
+
 <script>
 fetch("header.html")
   .then(res => res.text())
@@ -32,6 +34,7 @@ fetch("header.html")
 <main>
 
 <h2>簡易複数タイマー</h2>
+
 <!-- ラベル -->
 <div class="form-row compact-row">
 
@@ -73,6 +76,7 @@ fetch("header.html")
     placeholder="メモ">
 
 </div>
+
 <!-- モード＋時間 -->
 <div class="form-row compact-row">
 
@@ -94,6 +98,7 @@ fetch("header.html")
     class="time-input">
 
 </div>
+
 <!-- 音量 -->
 <div class="form-row compact-row">
 
@@ -145,17 +150,25 @@ fetch("header.html")
 </div>
 
 <div class="tool-row">
-  <button class="clear-button" id="clearAllBtn">
+
+  <button
+    class="clear-button"
+    id="clearAllBtn">
+
     オールクリア
+
   </button>
+
 </div>
 
 <h3>タイマー一覧</h3>
+
 <ul id="timerList"></ul>
 
 <h3 id="finishedToggle" style="cursor:pointer;">
 完了（0件）▼
 </h3>
+
 <ul id="finishedList" style="display:none;"></ul>
 
 </main>
@@ -171,8 +184,12 @@ let finishedOpen = false;
 let audioCtx = null;
 
 function initAudio() {
+
   try {
-    const AC = window.AudioContext || window.webkitAudioContext;
+
+    const AC =
+      window.AudioContext ||
+      window.webkitAudioContext;
 
     if (!audioCtx) {
       audioCtx = new AC();
@@ -183,15 +200,21 @@ function initAudio() {
     }
 
   } catch(e) {
+
     console.log("audio unavailable");
   }
 }
 
 function getVolumeLevel() {
-  const selected =
-    document.querySelector('input[name="volume"]:checked');
 
-  return selected ? Number(selected.value) : 0.05;
+  const selected =
+    document.querySelector(
+      'input[name="volume"]:checked'
+    );
+
+  return selected
+    ? Number(selected.value)
+    : 0.05;
 }
 
 function beepAt(startTime) {
@@ -209,8 +232,16 @@ function beepAt(startTime) {
   osc.frequency.value = 880;
 
   gain.gain.setValueAtTime(0.001, startTime);
-  gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.14);
+
+  gain.gain.exponentialRampToValueAtTime(
+    volume,
+    startTime + 0.01
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    0.001,
+    startTime + 0.14
+  );
 
   osc.connect(gain);
   gain.connect(audioCtx.destination);
@@ -232,9 +263,14 @@ function playBeepTwice() {
 /* =========================
    要素
 ========================= */
-const timeInput = document.getElementById("timeInput");
-const testSoundBtn = document.getElementById("testSoundBtn");
-const memoText = document.getElementById("memoText");
+const timeInput =
+  document.getElementById("timeInput");
+
+const testSoundBtn =
+  document.getElementById("testSoundBtn");
+
+const memoText =
+  document.getElementById("memoText");
 
 /* =========================
    ラベルUI
@@ -242,9 +278,12 @@ const memoText = document.getElementById("memoText");
 function updateLabelUI() {
 
   const selected =
-    document.querySelector('input[name="labelType"]:checked');
+    document.querySelector(
+      'input[name="labelType"]:checked'
+    );
 
-  const isText = selected.value === "text";
+  const isText =
+    selected.value === "text";
 
   memoText.disabled = !isText;
 
@@ -254,15 +293,17 @@ function updateLabelUI() {
 }
 
 /* =========================
-   試聴ボタン状態
+   試聴ボタン
 ========================= */
 function updateTestButtonState() {
 
-  const muted = getVolumeLevel() === 0;
+  const muted =
+    getVolumeLevel() === 0;
 
   testSoundBtn.disabled = muted;
 
-  testSoundBtn.title = muted ? "ミュート中" : "試聴";
+  testSoundBtn.title =
+    muted ? "ミュート中" : "試聴";
 }
 
 /* =========================
@@ -271,46 +312,56 @@ function updateTestButtonState() {
 function saveVolumeSetting() {
 
   const selected =
-    document.querySelector('input[name="volume"]:checked');
+    document.querySelector(
+      'input[name="volume"]:checked'
+    );
 
   if (!selected) return;
 
-  localStorage.setItem("timer_volume", selected.value);
+  localStorage.setItem(
+    "timer_volume",
+    selected.value
+  );
 }
 
 function loadVolumeSetting() {
 
-  const saved = localStorage.getItem("timer_volume");
+  const saved =
+    localStorage.getItem("timer_volume");
 
   if (!saved) return;
 
-  const target = document.querySelector(
-    `input[name="volume"][value="${saved}"]`
-  );
+  const target =
+    document.querySelector(
+      `input[name="volume"][value="${saved}"]`
+    );
 
   if (target) {
     target.checked = true;
   }
 }
 
-/* volume change */
 document
   .querySelectorAll('input[name="volume"]')
   .forEach(radio => {
 
     radio.addEventListener("change", () => {
+
       saveVolumeSetting();
       updateTestButtonState();
+
     });
 
 });
 
-/* label change */
 document
   .querySelectorAll('input[name="labelType"]')
   .forEach(radio => {
 
-    radio.addEventListener("change", updateLabelUI);
+    radio.addEventListener(
+      "change",
+      updateLabelUI
+    );
 
 });
 
@@ -336,10 +387,13 @@ function parseTimeFlexible(input) {
 
   if (input.includes(":")) {
 
-    const p = input.split(":").map(Number);
+    const p =
+      input.split(":").map(Number);
 
     if (p.length === 3) {
-      return p[0] * 3600 + p[1] * 60 + p[2];
+      return p[0] * 3600
+           + p[1] * 60
+           + p[2];
     }
 
     if (p.length === 2) {
@@ -349,21 +403,31 @@ function parseTimeFlexible(input) {
     return null;
   }
 
-  if (!/^\d+$/.test(input)) return null;
+  if (!/^\d+$/.test(input)) {
+    return null;
+  }
 
-  const str = input.padStart(6, "0");
+  const str =
+    input.padStart(6, "0");
 
-  const h = Number(str.slice(0, -4)) || 0;
-  const m = Number(str.slice(-4, -2));
-  const s = Number(str.slice(-2));
+  const h =
+    Number(str.slice(0, -4)) || 0;
 
-  if (m >= 60 || s >= 60) return null;
+  const m =
+    Number(str.slice(-4, -2));
+
+  const s =
+    Number(str.slice(-2));
+
+  if (m >= 60 || s >= 60) {
+    return null;
+  }
 
   return h * 3600 + m * 60 + s;
 }
 
 /* =========================
-   指定時刻パース
+   指定時刻
 ========================= */
 function parseTargetTime(input) {
 
@@ -377,37 +441,47 @@ function parseTargetTime(input) {
 
   if (input.includes(":")) {
 
-    const p = input.split(":").map(Number);
+    const p =
+      input.split(":").map(Number);
 
     if (p.length === 2) {
+
       h = p[0];
       m = p[1];
-    }
-    else if (p.length === 3) {
+
+    } else if (p.length === 3) {
+
       h = p[0];
       m = p[1];
       s = p[2];
-    }
-    else {
+
+    } else {
+
       return null;
     }
 
   } else {
 
-    if (!/^\d+$/.test(input)) return null;
+    if (!/^\d+$/.test(input)) {
+      return null;
+    }
 
-    const str = input.padStart(6, "0");
+    const str =
+      input.padStart(6, "0");
 
     h = Number(str.slice(0, -4)) || 0;
     m = Number(str.slice(-4, -2));
     s = Number(str.slice(-2));
   }
 
-  if (h > 23 || m > 59 || s > 59) return null;
+  if (h > 23 || m > 59 || s > 59) {
+    return null;
+  }
 
   const now = new Date();
 
   const target = new Date();
+
   target.setHours(h, m, s, 0);
 
   if (target.getTime() <= now.getTime()) {
@@ -422,32 +496,49 @@ function parseTargetTime(input) {
 ========================= */
 function formatTime(sec) {
 
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = sec % 60;
+  const h =
+    Math.floor(sec / 3600);
 
-  return String(h).padStart(2, "0") + ":" +
-         String(m).padStart(2, "0") + ":" +
-         String(s).padStart(2, "0");
+  const m =
+    Math.floor((sec % 3600) / 60);
+
+  const s =
+    sec % 60;
+
+  return String(h).padStart(2, "0")
+    + ":"
+    + String(m).padStart(2, "0")
+    + ":"
+    + String(s).padStart(2, "0");
 }
 
 function getMode() {
-  return document.querySelector('input[name="mode"]:checked').value;
+
+  return document.querySelector(
+    'input[name="mode"]:checked'
+  ).value;
 }
 
 function formatTimerId(id) {
+
   return String(id).padStart(2, "0");
 }
 
 /* =========================
    Enter追加
 ========================= */
-timeInput.addEventListener("keydown", (e) => {
+timeInput.addEventListener(
+  "keydown",
+  (e) => {
 
-  if (e.key === "Enter" && !e.isComposing) {
-    e.preventDefault();
-    addTimer();
-  }
+    if (
+      e.key === "Enter" &&
+      !e.isComposing
+    ) {
+
+      e.preventDefault();
+      addTimer();
+    }
 });
 
 /* =========================
@@ -458,10 +549,14 @@ function updateModeUI() {
   const mode = getMode();
 
   if (mode === "duration") {
-    timeInput.placeholder = "5:30 / 530 / 00:05:30";
-  }
-  else {
-    timeInput.placeholder = "18:30 / 1830 / 18:30:15";
+
+    timeInput.placeholder =
+      "5:30 / 530 / 00:05:30";
+
+  } else {
+
+    timeInput.placeholder =
+      "18:30 / 1830 / 18:30:15";
   }
 
   timeInput.value = "";
@@ -470,15 +565,23 @@ function updateModeUI() {
 document
   .querySelectorAll('input[name="mode"]')
   .forEach(r => {
-    r.addEventListener("change", updateModeUI);
-  });
+
+    r.addEventListener(
+      "change",
+      updateModeUI
+    );
+
+});
 
 /* blur整形 */
 timeInput.addEventListener("blur", () => {
 
-  if (getMode() !== "duration") return;
+  if (getMode() !== "duration") {
+    return;
+  }
 
-  const sec = parseTimeFlexible(timeInput.value);
+  const sec =
+    parseTimeFlexible(timeInput.value);
 
   if (sec !== null) {
     timeInput.value = formatTime(sec);
@@ -490,39 +593,50 @@ timeInput.addEventListener("blur", () => {
 ========================= */
 function saveTimers() {
 
-  const saveData = timers.map(t => ({
-    id: t.id,
-    labelType: t.labelType,
-    labelText: t.labelText,
-    target: t.target,
-    completed: t.completed,
-    endGraceUntil: t.endGraceUntil
-  }));
+  const saveData =
+    timers.map(t => ({
+      id: t.id,
+      labelType: t.labelType,
+      labelText: t.labelText,
+      target: t.target,
+      completed: t.completed,
+      endGraceUntil: t.endGraceUntil
+    }));
 
-  localStorage.setItem("timers_v2", JSON.stringify(saveData));
+  localStorage.setItem(
+    "timers_v2",
+    JSON.stringify(saveData)
+  );
 }
 
 function loadTimers() {
 
-  const data = localStorage.getItem("timers_v2");
+  const data =
+    localStorage.getItem("timers_v2");
 
   if (!data) return;
 
-  const loaded = JSON.parse(data);
+  const loaded =
+    JSON.parse(data);
 
   const now = Date.now();
 
   timers = loaded
-    .filter(t => now <= t.target + 5 * 60 * 1000)
+    .filter(t =>
+      now <= t.target + 5 * 60 * 1000 &&
+      t.completed !== true
+    )
     .map(t => ({
       ...t,
       interval: null
     }));
 
-  timerId = timers.reduce(
-    (max, t) => Math.max(max, t.id),
-    0
-  );
+  timerId =
+    timers.reduce(
+      (max, t) =>
+        Math.max(max, t.id),
+      0
+    );
 }
 
 /* =========================
@@ -533,23 +647,30 @@ function addTimer() {
   initAudio();
 
   const selectedLabel =
-    document.querySelector('input[name="labelType"]:checked');
+    document.querySelector(
+      'input[name="labelType"]:checked'
+    );
 
   const labelType =
-    selectedLabel.value === "text" ? "text" : "emoji";
+    selectedLabel.value === "text"
+      ? "text"
+      : "emoji";
 
   let labelText = "";
 
   if (labelType === "text") {
 
-    labelText = memoText.value.trim() || "---";
+    labelText =
+      memoText.value.trim() || "---";
 
   } else {
 
     labelText = selectedLabel.value;
   }
 
-  const input = timeInput.value.trim();
+  const input =
+    timeInput.value.trim();
+
   const mode = getMode();
 
   let target;
@@ -557,26 +678,35 @@ function addTimer() {
 
   if (mode === "duration") {
 
-    const sec = parseTimeFlexible(input);
+    const sec =
+      parseTimeFlexible(input);
 
     if (!sec || sec <= 0) {
+
       alert("時間形式が不正です");
       return;
     }
 
-    target = Date.now() + sec * 1000;
+    target =
+      Date.now() + sec * 1000;
+
     secForLog = sec;
 
   } else {
 
-    target = parseTargetTime(input);
+    target =
+      parseTargetTime(input);
 
     if (!target) {
+
       alert("時刻形式が不正です");
       return;
     }
 
-    secForLog = Math.floor((target - Date.now()) / 1000);
+    secForLog =
+      Math.floor(
+        (target - Date.now()) / 1000
+      );
   }
 
   if (typeof gtag === "function") {
@@ -613,7 +743,10 @@ function removeTimer(id) {
     gtag("event", "timer_remove");
   }
 
-  const i = timers.findIndex(t => t.id === id);
+  const i =
+    timers.findIndex(
+      t => t.id === id
+    );
 
   if (i === -1) return;
 
@@ -634,14 +767,20 @@ document
   .getElementById("clearAllBtn")
   .addEventListener("click", () => {
 
-    if (!confirm("保存済みタイマーをすべて削除しますか？")) {
+    if (
+      !confirm(
+        "保存済みタイマーをすべて削除しますか？"
+      )
+    ) {
       return;
     }
 
     timers.forEach(t => {
+
       if (t.interval) {
         clearInterval(t.interval);
       }
+
     });
 
     timers = [];
@@ -650,19 +789,27 @@ document
     localStorage.removeItem("timers_v2");
 
     renderTimers();
-  });
+});
 
 /* =========================
    完了開閉
 ========================= */
-document.getElementById("finishedToggle").onclick = () => {
+document
+  .getElementById("finishedToggle")
+  .onclick = () => {
 
   finishedOpen = !finishedOpen;
 
-  document.getElementById("finishedList").style.display =
-    finishedOpen ? "block" : "none";
+  document.getElementById(
+    "finishedList"
+  ).style.display =
+    finishedOpen
+      ? "block"
+      : "none";
 
-  document.getElementById("finishedToggle").textContent =
+  document.getElementById(
+    "finishedToggle"
+  ).textContent =
     `完了（${document.getElementById("finishedList").children.length}件）`
     + (finishedOpen ? "▲" : "▼");
 };
@@ -675,6 +822,7 @@ function renderTimers() {
   timers.forEach(t => {
 
     if (t.interval) {
+
       clearInterval(t.interval);
       t.interval = null;
     }
@@ -694,25 +842,35 @@ function renderTimers() {
     } else {
 
       if (!t.endGraceUntil) {
-        t.endGraceUntil = t.target + 5 * 60 * 1000;
+        t.endGraceUntil =
+          t.target + 5 * 60 * 1000;
       }
 
       if (now <= t.endGraceUntil) {
+
         active.push(t);
-      }
-      else {
+
+      } else {
+
         finished.push(t);
       }
     }
   });
 
-  active.sort((a, b) => a.target - b.target);
-  finished.sort((a, b) => b.target - a.target);
+  active.sort(
+    (a, b) => a.target - b.target
+  );
+
+  finished.sort(
+    (a, b) => b.target - a.target
+  );
 
   drawList("timerList", active);
   drawList("finishedList", finished);
 
-  document.getElementById("finishedToggle").textContent =
+  document.getElementById(
+    "finishedToggle"
+  ).textContent =
     `完了（${finished.length}件）`
     + (finishedOpen ? "▲" : "▼");
 
@@ -724,14 +882,18 @@ function renderTimers() {
 ========================= */
 function drawList(id, list) {
 
-  const ul = document.getElementById(id);
+  const ul =
+    document.getElementById(id);
 
   ul.innerHTML = "";
 
   list.forEach(t => {
 
-    const li = document.createElement("li");
-    li.className = "timer-item compact-timer-item";
+    const li =
+      document.createElement("li");
+
+    li.className =
+      "timer-item compact-timer-item";
 
     const labelDisplay =
       t.labelType === "text"
@@ -747,34 +909,44 @@ function drawList(id, list) {
         ${new Date(t.target).toLocaleTimeString()}
       </span>
 
-      <span class="remain">(残り: 計算中...)</span>
+      <span class="remain">
+        (残り: 計算中...)
+      </span>
 
       <button
         class="mini-button icon-button"
         title="削除"
         onclick="removeTimer(${t.id})">
+
         🗑
+
       </button>
     `;
 
     ul.appendChild(li);
 
-    const remain = li.querySelector(".remain");
+    const remain =
+      li.querySelector(".remain");
 
     function update() {
 
-      const diff = t.target - Date.now();
+      const diff =
+        t.target - Date.now();
 
       if (diff <= 0) {
 
         clearInterval(t.interval);
+
         t.interval = null;
 
-        remain.textContent = "(終了)";
+        remain.textContent =
+          "(終了)";
 
-        if (!t.completed) {
+        if (t.completed !== true) {
 
           t.completed = true;
+
+          saveTimers();
 
           if (getVolumeLevel() > 0) {
             playBeepTwice();
@@ -783,22 +955,23 @@ function drawList(id, list) {
           if (typeof gtag === "function") {
             gtag("event", "timer_complete");
           }
-
-          saveTimers();
         }
 
-      } else {
-
-        remain.textContent =
-          "(残り: "
-          + formatTime(Math.floor(diff / 1000))
-          + ")";
+        return;
       }
+
+      remain.textContent =
+        "(残り: "
+        + formatTime(
+            Math.floor(diff / 1000)
+          )
+        + ")";
     }
 
     update();
 
-    t.interval = setInterval(update, 1000);
+    t.interval =
+      setInterval(update, 1000);
   });
 }
 
@@ -806,10 +979,15 @@ function drawList(id, list) {
    初期化
 ========================= */
 loadTimers();
+
 loadVolumeSetting();
+
 updateModeUI();
+
 updateLabelUI();
+
 updateTestButtonState();
+
 renderTimers();
 
 setInterval(renderTimers, 10000);
@@ -817,6 +995,7 @@ setInterval(renderTimers, 10000);
 
 <!-- footer -->
 <div id="footer"></div>
+
 <script>
 fetch("footer.html")
   .then(res => res.text())
