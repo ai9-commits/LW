@@ -118,17 +118,17 @@ fetch("header.html")
     </label>
 
     <label>
-      <input type="radio" name="volume" value="0.02">
+      <input type="radio" name="volume" value="0.08">
       🔈
     </label>
 
     <label>
-      <input type="radio" name="volume" value="0.05" checked>
+      <input type="radio" name="volume" value="0.18" checked>
       🔉
     </label>
 
     <label>
-      <input type="radio" name="volume" value="0.09">
+      <input type="radio" name="volume" value="0.35">
       🔊
     </label>
 
@@ -257,7 +257,7 @@ function playBeepTwice() {
   const now = audioCtx.currentTime;
 
   beepAt(now);
-  beepAt(now + 0.25);
+  beepAt(now + 0.18);
 }
 
 /* =========================
