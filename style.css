@@ -223,15 +223,6 @@ td.diff {
   margin-top: 0;
 }
 
-.tool-row {
-  margin-top: 0.5em;
-}
-
-.clear-button {
-  opacity: 0.82;
-  font-size: 0.9em;
-}
-
 .mini-button {
   width: auto;
   margin-top: 0;
@@ -438,4 +429,23 @@ button:disabled {
   font-size: 1rem;
   height: auto;
   padding: 0.8em 1em;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.section-header h3 {
+  margin: 0;
+}
+
+.clear-button {
+  margin-top: 0;
+  height: auto;
+  opacity: 0.82;
+  padding: 0.25em 0.6em;
+  font-size: 0.9rem;
 }
