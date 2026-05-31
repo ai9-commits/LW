@@ -44,8 +44,8 @@ fetch("header.html")
   </label>
 
   <label class="label-option emoji-option">
-    <input type="radio" name="labelType" value="🛡️">
-    <span>🛡️</span>
+    <input type="radio" name="labelType" value="📖" checked>
+    <span>📖</span>
   </label>
 
   <label class="label-option emoji-option">
@@ -63,9 +63,19 @@ fetch("header.html")
     <span>🍙</span>
   </label>
 
+  <label class="label-option emoji-option">
+    <input type="radio" name="labelType" value="🦑" checked>
+    <span>🦑</span>
+  </label>
+
+  <label class="label-option emoji-option">
+    <input type="radio" name="labelType" value="🛸">
+    <span>🛸</span>
+  </label>
+
   <label class="label-option text-option">
     <input type="radio" name="labelType" value="text">
-    <span>文字</span>
+    <span>memo</span>
   </label>
 
   <input
@@ -73,7 +83,7 @@ fetch("header.html")
     id="memoText"
     class="memo-mini"
     maxlength="5"
-    placeholder="メモ">
+    placeholder="memo">
 
 </div>
 
@@ -93,7 +103,7 @@ fetch("header.html")
   <input
     type="text"
     id="timeInput"
-    placeholder="5:30 / 530 / 00:05:30"
+    placeholder="15:30 / 1530 / 00:15:30"
     inputmode="numeric"
     class="time-input">
 
@@ -128,7 +138,7 @@ fetch("header.html")
     </label>
 
     <label>
-      <input type="radio" name="volume" value="0.35">
+      <input type="radio" name="volume" value="0.42">
       🔊
     </label>
 
@@ -149,6 +159,8 @@ fetch("header.html")
 
 </div>
 
+<h3>タイマー一覧</h3>
+
 <div class="tool-row">
 
   <button
@@ -160,8 +172,6 @@ fetch("header.html")
   </button>
 
 </div>
-
-<h3>タイマー一覧</h3>
 
 <ul id="timerList"></ul>
 
@@ -556,7 +566,7 @@ function updateModeUI() {
   } else {
 
     timeInput.placeholder =
-      "18:30 / 1830 / 18:30:15";
+      "18:30:15 / 183015 / 18:30:15";
   }
 
   timeInput.value = "";
