@@ -54,11 +54,6 @@ fetch("header.html")
   </label>
 
   <label class="label-option emoji-option">
-    <input type="radio" name="labelType" value="💰">
-    <span>💰</span>
-  </label>
-
-  <label class="label-option emoji-option">
     <input type="radio" name="labelType" value="🍙">
     <span>🍙</span>
   </label>
@@ -75,7 +70,7 @@ fetch("header.html")
 
   <label class="label-option text-option">
     <input type="radio" name="labelType" value="text">
-    <span>memo</span>
+    <span></span>
   </label>
 
   <input
@@ -557,12 +552,12 @@ function updateModeUI() {
   if (mode === "duration") {
 
     timeInput.placeholder =
-      "5:30 / 530 / 00:05:30";
+      "15:30 / 1530 / 00:15:30";
 
   } else {
 
     timeInput.placeholder =
-      "18:30:15 / 183015 / 18:30:15";
+      "183015 / 18:30:15";
   }
 
   timeInput.value = "";
@@ -667,7 +662,7 @@ function addTimer() {
   if (labelType === "text") {
 
     labelText =
-      memoText.value.trim() || "---";
+      memoText.value.trim() || "memo";
 
   } else {
 
