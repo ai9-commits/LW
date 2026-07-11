@@ -847,7 +847,7 @@ document
   document.getElementById(
     "finishedToggle"
   ).textContent =
-    `完了（${document.getElementById("finishedList").children.length}件）`
+    `Completed（${document.getElementById("finishedList").children.length}件）`
     + (finishedOpen ? "▲" : "▼");
 };
 
@@ -908,7 +908,7 @@ function renderTimers() {
   document.getElementById(
     "finishedToggle"
   ).textContent =
-    `完了（${finished.length}件）`
+    `Completed（${finished.length}件）`
     + (finishedOpen ? "▲" : "▼");
 
   saveTimers();
