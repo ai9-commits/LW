@@ -668,3 +668,25 @@ header {
     grid-template-columns: 1fr;
   }
 }
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid var(--primary);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+main section {
+  margin-bottom: 28px;
+}
+
+.page-description {
+  margin-top: -6px;
+  margin-bottom: 24px;
+  color: var(--subtext);
+  line-height: 1.6;
+  max-width: 760px;
+}
