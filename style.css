@@ -690,3 +690,29 @@ main section {
   line-height: 1.6;
   max-width: 760px;
 }
+/* =========================
+   Timer Sections
+========================= */
+
+.tool-section {
+  margin-bottom: 28px;
+}
+
+
+/* Timer section heading */
+
+.section-header h2 {
+  margin: 0;
+}
+
+
+/* Completed toggle */
+
+.toggle-heading {
+  cursor: pointer;
+  user-select: none;
+
+  margin: 0;
+
+  font-size: 1.25rem;
+}
