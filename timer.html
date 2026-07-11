@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>簡易複数タイマー</title>
+<title>DOUGU | Timer</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -33,147 +33,183 @@ fetch("header.html")
 
 <main>
 
-<h2>簡易複数タイマー</h2>
+  <h1>Timer</h1>
 
-<!-- ラベル -->
-<div class="form-row compact-row">
+  <p class="page-description">
+    複数のカウントダウンタイマーや指定時刻タイマーを同時に管理できます。
+  </p>
 
-  <label class="label-option emoji-option">
-    <input type="radio" name="labelType" value="🎁" checked>
-    <span>🎁</span>
-  </label>
 
-  <label class="label-option emoji-option">
-    <input type="radio" name="labelType" value="📘" checked>
-    <span>📘</span>
-  </label>
+  <!-- Timer settings -->
+  <section class="tool-section">
 
-  <label class="label-option emoji-option">
-    <input type="radio" name="labelType" value="⚔️">
-    <span>⚔️</span>
-  </label>
+    <!-- Label -->
+    <div class="form-row compact-row">
 
-  <label class="label-option emoji-option">
-    <input type="radio" name="labelType" value="🍙">
-    <span>🍙</span>
-  </label>
+      <label class="label-option emoji-option">
+        <input type="radio" name="labelType" value="🎁" checked>
+        <span>🎁</span>
+      </label>
 
-  <label class="label-option emoji-option">
-    <input type="radio" name="labelType" value="🦑" checked>
-    <span>🦑</span>
-  </label>
+      <label class="label-option emoji-option">
+        <input type="radio" name="labelType" value="📘">
+        <span>📘</span>
+      </label>
 
-  <label class="label-option emoji-option">
-    <input type="radio" name="labelType" value="🛸">
-    <span>🛸</span>
-  </label>
+      <label class="label-option emoji-option">
+        <input type="radio" name="labelType" value="⚔️">
+        <span>⚔️</span>
+      </label>
 
-  <label class="label-option text-option">
-    <input type="radio" name="labelType" value="text">
-    <span></span>
-  </label>
+      <label class="label-option emoji-option">
+        <input type="radio" name="labelType" value="🍙">
+        <span>🍙</span>
+      </label>
 
-  <input
-    type="text"
-    id="memoText"
-    class="memo-mini"
-    maxlength="5"
-    placeholder="memo">
+      <label class="label-option emoji-option">
+        <input type="radio" name="labelType" value="🦑">
+        <span>🦑</span>
+      </label>
 
-</div>
+      <label class="label-option emoji-option">
+        <input type="radio" name="labelType" value="🛸">
+        <span>🛸</span>
+      </label>
 
-<!-- モード＋時間 -->
-<div class="form-row compact-row">
+      <label class="label-option text-option">
+        <input type="radio" name="labelType" value="text">
+        <span></span>
+      </label>
 
-  <label>
-    <input type="radio" name="mode" value="duration" checked>
-    残り
-  </label>
+      <input
+        type="text"
+        id="memoText"
+        class="memo-mini"
+        maxlength="5"
+        placeholder="memo">
 
-  <label>
-    <input type="radio" name="mode" value="target">
-    時刻
-  </label>
+    </div>
 
-  <input
-    type="text"
-    id="timeInput"
-    placeholder="15:30 / 1530 / 00:15:30"
-    inputmode="numeric"
-    class="time-input">
 
-</div>
+    <!-- Mode and time -->
+    <div class="form-row compact-row">
 
-<!-- 音量 -->
-<div class="form-row compact-row">
+      <label>
+        <input type="radio" name="mode" value="duration" checked>
+        残り
+      </label>
 
-  <button
-    type="button"
-    class="mini-button icon-button"
-    id="testSoundBtn"
-    title="試聴">
-    ▶
-  </button>
+      <label>
+        <input type="radio" name="mode" value="target">
+        時刻
+      </label>
 
-  <div class="volume-group">
+      <input
+        type="text"
+        id="timeInput"
+        placeholder="15:30 / 1530 / 00:15:30"
+        inputmode="numeric"
+        class="time-input">
 
-    <label>
-      <input type="radio" name="volume" value="0">
-      🔇
-    </label>
+    </div>
 
-    <label>
-      <input type="radio" name="volume" value="0.08">
-      🔈
-    </label>
 
-    <label>
-      <input type="radio" name="volume" value="0.18" checked>
-      🔉
-    </label>
+    <!-- Sound -->
+    <div class="form-row compact-row">
 
-    <label>
-      <input type="radio" name="volume" value="0.42">
-      🔊
-    </label>
+      <button
+        type="button"
+        class="mini-button icon-button"
+        id="testSoundBtn"
+        title="試聴">
+        ▶
+      </button>
 
-  </div>
 
-</div>
+      <div class="volume-group">
 
-<!-- 追加 -->
-<div class="form-row add-row">
+        <label>
+          <input type="radio" name="volume" value="0">
+          🔇
+        </label>
 
-  <button
-    class="btn-primary add-timer-button"
-    onclick="addTimer()">
+        <label>
+          <input type="radio" name="volume" value="0.08">
+          🔈
+        </label>
 
-    タイマー追加
+        <label>
+          <input type="radio" name="volume" value="0.18" checked>
+          🔉
+        </label>
 
-  </button>
+        <label>
+          <input type="radio" name="volume" value="0.42">
+          🔊
+        </label>
 
-</div>
+      </div>
 
-<div class="section-header">
+    </div>
 
-  <h3>タイマー一覧</h3>
 
-  <button class="clear-button" id="clearAllBtn">
-    All clear
-  </button>
+    <!-- Add timer -->
+    <div class="form-row add-row">
 
-</div>
+      <button
+        class="btn-primary add-timer-button"
+        onclick="addTimer()">
+        タイマー追加
+      </button>
 
-<ul id="timerList"></ul>
+    </div>
 
-<h3 id="finishedToggle" style="cursor:pointer;">
-完了（0件）▼
-</h3>
+  </section>
 
-<ul id="finishedList" style="display:none;"></ul>
+
+
+  <!-- Active timers -->
+  <section class="tool-section">
+
+    <div class="section-header">
+
+      <h2>Timers</h2>
+
+      <button
+        class="clear-button"
+        id="clearAllBtn">
+        All clear
+      </button>
+
+    </div>
+
+
+    <ul id="timerList"></ul>
+
+  </section>
+
+
+
+  <!-- Completed timers -->
+  <section class="tool-section">
+
+    <h2
+      id="finishedToggle"
+      class="toggle-heading">
+      Completed（0件）▼
+    </h2>
+
+
+    <ul
+      id="finishedList"
+      style="display:none;">
+    </ul>
+
+  </section>
+
 
 </main>
-
+  
 <script>
 let timerId = 0;
 let timers = [];
