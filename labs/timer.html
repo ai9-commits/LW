@@ -33,7 +33,14 @@ fetch("header.html")
 
 <main>
 
-  <h1>Timer</h1>
+  <div class="timer-title-bar">
+    <h1>Timer</h1>
+    <div class="view-switcher" role="group" aria-label="表示位置の切り替え">
+      <button type="button" class="view-btn" data-view="left" title="左端にスリム配置">◀ Left</button>
+      <button type="button" class="view-btn active" data-view="center" title="標準の中央配置">■ Center</button>
+      <button type="button" class="view-btn" data-view="right" title="右端にスリム配置">Right ▶</button>
+    </div>
+  </div>
 
   <p class="page-description">
     複数のカウントダウンタイマーや指定時刻タイマーを同時に管理できます。
@@ -224,6 +231,7 @@ fetch("header.html")
 const isLabs = window.location.pathname.includes('/labs/');
 const STORAGE_KEY_TIMERS = isLabs ? "labs_timers_v2" : "timers_v2";
 const STORAGE_KEY_VOLUME = isLabs ? "labs_timer_volume" : "timer_volume";
+const STORAGE_KEY_VIEW = isLabs ? "labs_timer_view_mode" : "timer_view_mode";
 
 let timerId = 0;
 let timers = [];
@@ -1091,8 +1099,41 @@ document.addEventListener("visibilitychange", () => {
 });
 
 /* =========================
+   ビュー切り替え（左右寄せ・スリム表示）
+========================= */
+function setViewMode(mode) {
+  const mainEl = document.querySelector("main");
+  if (!mainEl) return;
+
+  mainEl.classList.remove("view-left", "view-right", "view-center");
+  mainEl.classList.add(`view-${mode}`);
+
+  document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-view") === mode);
+  });
+
+  try {
+    localStorage.setItem(STORAGE_KEY_VIEW, mode);
+  } catch(e) {}
+}
+
+function initViewMode() {
+  const saved = localStorage.getItem(STORAGE_KEY_VIEW) || "center";
+  setViewMode(saved);
+
+  document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const mode = btn.getAttribute("data-view");
+      setViewMode(mode);
+    });
+  });
+}
+
+/* =========================
    初期化
 ========================= */
+initViewMode();
+
 loadTimers();
 
 loadVolumeSetting();

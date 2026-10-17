@@ -167,6 +167,13 @@ td.diff {
 /* =========================
    ⑦ タイマー
 ========================= */
+#timerList,
+#finishedList {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
 .timer-item {
   margin-bottom: 0.5em;
 }
@@ -802,5 +809,227 @@ main section {
   .nav-stable-link {
     background: rgba(102, 178, 255, 0.12);
     border: 1px solid rgba(102, 178, 255, 0.3);
+  }
+}
+
+/* =========================
+   ⑮ Timer View Switcher（左右寄せ・スリム表示）
+========================= */
+.timer-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.timer-title-bar h1 {
+  margin: 0;
+}
+
+.view-switcher {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.view-btn {
+  background: transparent;
+  border: none;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--subtext);
+  height: auto;
+  margin: 0;
+  border-radius: 0;
+  transition: all 0.15s ease;
+}
+
+.view-btn:not(:last-child) {
+  border-right: 1px solid var(--border);
+}
+
+.view-btn:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text);
+}
+
+.view-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ビュー配置スタイル */
+main.view-left {
+  margin-left: 0;
+  margin-right: auto;
+  max-width: 320px;
+  padding-left: 10px;
+  padding-right: 10px;
+  transition: max-width 0.2s ease, margin 0.2s ease;
+}
+
+main.view-right {
+  margin-left: auto;
+  margin-right: 0;
+  max-width: 320px;
+  padding-left: 10px;
+  padding-right: 10px;
+  transition: max-width 0.2s ease, margin 0.2s ease;
+}
+
+main.view-center {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1000px;
+  transition: max-width 0.2s ease, margin 0.2s ease;
+}
+
+/* スリム表示時の微調整 */
+main.view-left .page-description,
+main.view-right .page-description {
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+main.view-left .form-row,
+main.view-right .form-row {
+  padding: 8px;
+  gap: 6px;
+}
+
+main.view-left .time-input,
+main.view-right .time-input {
+  min-width: 6em;
+}
+
+/* =========================
+   Left View：左端に情報を集約
+========================= */
+main.view-left .compact-timer-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "label  target target"
+    "remain remain delete";
+  padding: 6px 10px;
+  gap: 3px 8px;
+  align-items: center;
+}
+
+main.view-left .compact-timer-item .timer-label {
+  grid-area: label;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+main.view-left .compact-timer-item .timer-target {
+  grid-area: target;
+  font-size: 0.82rem;
+  color: var(--subtext);
+  justify-self: start;
+  margin-left: 2px;
+  white-space: nowrap;
+}
+
+main.view-left .compact-timer-item .remain {
+  grid-area: remain;
+  margin-left: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  justify-self: start;
+}
+
+main.view-left .compact-timer-item .icon-button {
+  grid-area: delete;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  min-width: 1.8em;
+  height: 1.8em;
+  justify-self: end;
+}
+
+/* =========================
+   Right View：右端に情報を集約
+========================= */
+main.view-right .timer-title-bar {
+  flex-direction: row-reverse;
+}
+
+main.view-right .page-description {
+  text-align: right;
+}
+
+main.view-right .section-header {
+  flex-direction: row-reverse;
+}
+
+main.view-right .toggle-heading {
+  text-align: right;
+}
+
+main.view-right .form-row {
+  justify-content: flex-end;
+}
+
+main.view-right .compact-timer-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "delete . label  target"
+    "delete . remain remain";
+  padding: 6px 10px;
+  gap: 3px 6px;
+  align-items: center;
+}
+
+main.view-right .compact-timer-item .icon-button {
+  grid-area: delete;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  min-width: 1.8em;
+  height: 1.8em;
+  justify-self: start;
+}
+
+main.view-right .compact-timer-item .timer-label {
+  grid-area: label;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  justify-self: end;
+}
+
+main.view-right .compact-timer-item .timer-target {
+  grid-area: target;
+  font-size: 0.82rem;
+  color: var(--subtext);
+  margin-left: 4px;
+  white-space: nowrap;
+  justify-self: end;
+}
+
+main.view-right .compact-timer-item .remain {
+  grid-area: remain;
+  margin-left: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  justify-self: end;
+}
+
+@media (prefers-color-scheme: dark) {
+  .view-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.08);
   }
 }
