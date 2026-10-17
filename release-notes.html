@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOUGU | 更新履歴 (Release Notes)</title>
+<link rel="stylesheet" href="style.css">
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NWV2W1CSQT"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-NWV2W1CSQT');
+</script>
+</head>
+<body>
+
+<div id="header"></div>
+
+<script>
+fetch("header.html")
+.then(res => res.text())
+.then(data => {
+    document.getElementById("header").innerHTML = data;
+});
+</script>
+
+<main>
+
+<h1>更新履歴（Release Notes）</h1>
+<p class="page-description">
+  DOUGU の機能追加や改善、アップデート情報をお知らせします。
+</p>
+
+<section class="tool-section">
+  <div class="section-header">
+    <h2>2026.10.17 — DOUGU Labs 開設 &amp; タイマー機能強化</h2>
+  </div>
+
+  <div class="form-row" style="display:block; line-height: 1.8;">
+    <h3 style="margin-top: 0.5em;">🧪 先行検証環境「DOUGU Labs」の開設</h3>
+    <p>
+      新機能やUIの改善を先行してお試しいただける検証環境「<a href="labs/index.html"><strong>DOUGU Labs</strong></a>」を開設しました。<br>
+      保存データは安定版と独立しているため、通常のご利用に影響を与えることなく新しい機能を安全に体験いただけます。
+    </p>
+
+    <h3 style="margin-top: 1.2em;">🔊 タイマー音響の全面強化（Labs先行）</h3>
+    <ul>
+      <li><strong>抜けの良い音質へ刷新</strong>: サイン波から適度な倍音を含む三角波に変更し、動画再生中やBGMが流れていても埋もれずに聞き取りやすくなりました。</li>
+      <li><strong>「📢 特大」音量（1.0）の新設</strong>: 動画視聴時などにしっかり気づけるよう、従来の最大音量（0.42）から約2倍以上のフルパワー出力に対応しました。</li>
+      <li><strong>音圧（サステイン持続時間）の向上</strong>: ピーク音量を約0.1秒間キープすることで、音のエネルギー（音圧）をアップし、体感音量を大幅に強化しました。</li>
+    </ul>
+
+    <h3 style="margin-top: 1.2em;">⏱️ バックグラウンド遅延の解消（Labs先行）</h3>
+    <ul>
+      <li>裏方専用スレッド（Web Worker）による正確なタイマー処理を導入しました。</li>
+      <li>ブラウザの省電力機能によるタイマーの間引きを回避し、<strong>別タブで動画を再生中などでも時間ぴったりに音が鳴る</strong>ようになりました。</li>
+    </ul>
+
+    <h3 style="margin-top: 1.2em;">🧭 ナビゲーション &amp; トップ画面の整理</h3>
+    <ul>
+      <li>ヘッダーに「Labs」および「安定版へ」のリンクを設置し、環境間をスムーズに行き来できるようになりました。</li>
+      <li>トップ画面のカード一覧を整理し、現在稼働している3つのツール（Time Calculator, Timer, Queue Calculator）のみをすっきり表示するようにしました。</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<div id="footer"></div>
+
+<script>
+fetch("footer.html")
+.then(res => res.text())
+.then(data => {
+    document.getElementById("footer").innerHTML = data;
+});
+</script>
+
+</body>
+</html>
