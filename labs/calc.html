@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DOUGU Labs | Time Calculator (開発版)</title>
+<link rel="stylesheet" href="style.css">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NWV2W1CSQT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NWV2W1CSQT');
+</script>
+</head>
+
+<body>
+
+<div id="header"></div>
+<script>
+fetch("header.html")
+  .then(res => res.text())
+  .then(data => document.getElementById("header").innerHTML = data);
+</script>
+
+<main>
+
+<h1>Time Calculator</h1>
+
+<p class="page-description">
+元の所要時間と現在の所要時間から加速率を算出し、
+任意の加速量を適用した場合の所要時間を計算します。
+</p>
+
+<section>
+
+<h2>元の所要時間</h2>
+
+<div class="form-row">
+  <label>日数</label>
+
+  <div class="stepper">
+    <button type="button" onclick="dA.value=Math.max(0,+dA.value-1)">−</button>
+    <input type="number" id="dA" value="0">
+    <button type="button" onclick="dA.value=+dA.value+1">＋</button>
+  </div>
+
+  <span>d</span>
+
+  <input type="time" id="hmsA" step="1" value="00:00:00">
+</div>
+
+</section>
+
+<section>
+
+<h2>現在の所要時間</h2>
+
+<div class="form-row">
+  <label>日数</label>
+
+  <div class="stepper">
+    <button type="button" onclick="dB.value=Math.max(0,+dB.value-1)">−</button>
+    <input type="number" id="dB" value="0">
+    <button type="button" onclick="dB.value=+dB.value+1">＋</button>
+  </div>
+
+  <span>d</span>
+
+  <input type="time" id="hmsB" step="1" value="00:00:00">
+</div>
+
+</section>
+
+<section>
+
+<h2>追加する加速量</h2>
+
+<div class="form-row">
+  <label>速度％</label>
+  <input type="number" id="deltaCustom" value="60" class="small-input">
+</div>
+
+</section>
+
+<button class="btn-primary" onclick="calculate()">
+計算する
+</button>
+
+<section class="result">
+
+<h2>計算結果</h2>
+
+<p>
+現在の速度：
+<strong><span id="displaySpeedB">---</span>%</strong>
+</p>
+
+<table id="resultTable">
+  <thead>
+    <tr>
+      <th>追加加速</th>
+      <th>所要時間</th>
+      <th>短縮効果</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td colspan="3">
+        ～ここに計算結果が表示されます～
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+</section>
+<script>
+function timeToSeconds(d, hmsStr){
+  const [h,m,s] = hmsStr.split(":").map(Number);
+  return (d || 0)*86400 + h*3600 + m*60 + s;
+}
+
+function normalizeTime(value) {
+  if (/^\d{2}:\d{2}$/.test(value)) {
+    return value + ":00";
+  }
+  return value;
+}
+
+function secondsToCompactDHMS(sec){
+  const d = Math.floor(sec / 86400);
+  sec %= 86400;
+  const h = Math.floor(sec / 3600);
+  sec %= 3600;
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+
+  let hh = h.toString().padStart(2, '0');
+  let mm = m.toString().padStart(2, '0');
+  let ss = s.toString().padStart(2, '0');
+
+  return (d > 0 ? d + "d" : "") + hh + ":" + mm + ":" + ss;
+}
+
+function calculate(){
+  const dA = parseInt(document.getElementById("dA").value) || 0;
+  const hmsA = normalizeTime(document.getElementById("hmsA").value || "00:00:00");
+  const secondsA = timeToSeconds(dA, hmsA);
+
+  const dB = parseInt(document.getElementById("dB").value) || 0;
+  const hmsB = normalizeTime(document.getElementById("hmsB").value || "00:00:00");
+  let secondsB = timeToSeconds(dB, hmsB);
+
+  let speedB = 0;
+  const speedA = 100;
+  const deltaCustom = parseFloat(document.getElementById("deltaCustom").value) || 0;
+
+  if(secondsB > 0){
+    speedB = speedA * (secondsA / secondsB);
+  } else {
+    alert("現在の所要時間を入力してください");
+    return;
+  }
+
+  const speedB_fixed = parseFloat(speedB.toFixed(2));
+
+  gtag('event', 'calc_execute', {
+    durationA_seconds: secondsA,
+    durationB_seconds: secondsB,
+    speedB: speedB_fixed
+  });
+
+  document.getElementById("displaySpeedB").textContent = speedB.toFixed(2);
+
+  const deltas = [20,25,50, deltaCustom];
+  const labels = ["20","25","50",deltaCustom];
+
+  const tbody = document.querySelector("#resultTable tbody");
+  tbody.innerHTML = "";
+
+  deltas.forEach((delta,i)=>{
+    const newTime = secondsB * (speedB / (speedB + delta));
+    const diff = secondsB - newTime;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${labels[i]}</td>
+      <td>${secondsToCompactDHMS(newTime)}</td>
+      <td class="diff">${secondsToCompactDHMS(diff)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</main>
+ <div id="footer"></div>
+
+ <script>
+ fetch("footer.html")
+   .then(res => res.text())
+   .then(data => {
+     document.getElementById("footer").innerHTML = data;
+   });
+</script>
+</body>
+</html>

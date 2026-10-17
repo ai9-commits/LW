@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>DOUGU Labs | Tools (開発版)</title>
+
+<link rel="stylesheet" href="style.css">
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NWV2W1CSQT"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-NWV2W1CSQT');
+</script>
+
+</head>
+<body>
+
+<div id="header"></div>
+
+<script>
+fetch("header.html")
+.then(res => res.text())
+.then(data => {
+    document.getElementById("header").innerHTML = data;
+});
+</script>
+
+<main>
+
+<h1>DOUGU Labs</h1>
+
+<p class="labs-intro">
+【開発・検証環境】新機能やUI改善を先行テストするための実験環境です。<br>
+予告なく仕様が変更されたり、動作が不安定になる場合があります。<br>
+通常の利用には <a href="../index.html"><strong>安定版（通常版）</strong></a> をご利用ください。
+</p>
+
+<div class="tool-grid">
+
+    <div class="tool">
+        <a href="calc.html">
+            <h3>Time Calculator</h3>
+            <p class="jp">
+                時間計算ツール
+            </p>
+            <p class="tool-desc">
+                加速時間を簡単に計算できます。
+            </p>
+        </a>
+    </div>
+
+    <div class="tool">
+        <a href="timer.html">
+            <h3>Timer</h3>
+            <p class="jp">
+                軽量タイマー
+            </p>
+            <p class="tool-desc">
+                複数のタイマーを同時に管理できます。
+            </p>
+        </a>
+    </div>
+
+    <div class="tool">
+        <a href="addcalc.html">
+            <h3>Queue Calculator</h3>
+            <p class="jp">
+                長官並び時間計算
+            </p>
+            <p class="tool-desc">
+                並び時間をすばやく算出します。
+            </p>
+        </a>
+    </div>
+
+    <!-- 将来用プレースホルダー（非表示）
+    <div class="tool">
+        <a href="#">
+            <h3>Text Tools</h3>
+            <p class="jp">
+                テキスト処理
+            </p>
+            <p class="tool-desc">
+                よく使う文字列処理をまとめます。
+            </p>
+            <p class="coming">
+                Coming Soon
+            </p>
+        </a>
+    </div>
+
+    <div class="tool">
+        <a href="#">
+            <h3>Unit Converter</h3>
+            <p class="jp">
+                単位変換
+            </p>
+            <p class="tool-desc">
+                長さ・重さなどを簡単に変換できます。
+            </p>
+            <p class="coming">
+                Coming Soon
+            </p>
+        </a>
+    </div>
+    -->
+
+</div>
+
+</main>
+
+<div id="footer"></div>
+
+<script>
+fetch("footer.html")
+.then(res => res.text())
+.then(data => {
+    document.getElementById("footer").innerHTML = data;
+});
+</script>
+
+</body>
+</html>

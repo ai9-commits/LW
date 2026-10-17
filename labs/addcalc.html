@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DOUGU Labs | 長官並び時間計算 (開発版)</title>
+  <link rel="stylesheet" href="style.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NWV2W1CSQT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NWV2W1CSQT');
+</script>
+</head>
+
+<body>
+
+<div id="header"></div>
+<script>
+fetch('header.html')
+  .then(res => res.text())
+  .then(html => document.getElementById('header').innerHTML = html);
+</script>
+
+<main>
+
+<h2>長官待ち何時頃になるのかな</h2>
+
+<div class="form-row">
+  <label>待ち人数</label>
+  <input type="number" id="input1" min="0" max="100" class="small-input">
+</div>
+
+<div class="form-row">
+  <label>× 分</label>
+  <input type="number" id="input2" value="5" class="small-input">
+</div>
+
+<button id="calcBtn">計算する</button>
+
+<div class="result">
+  <p>現在時刻：<span id="outputNow">-</span></p>
+  <p>計算後時刻：<span id="outputFuture">-</span></p>
+</div>
+
+<p>指定した待ち人数＊5分後の時刻を表示します。</p>
+<p>「長官は90人待ちかー。・・・90人待ちって何時になるんだ？」みたいなときにどうぞ。</p>
+
+</main>
+
+<script>
+function formatHMS(date) {
+  const hh = String(date.getHours()).padStart(2,'0');
+  const mm = String(date.getMinutes()).padStart(2,'0');
+  const ss = String(date.getSeconds()).padStart(2,'0');
+  return `${hh}:${mm}:${ss}`;
+}
+
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const n = parseInt(document.getElementById('input1').value, 10);
+  const m = parseInt(document.getElementById('input2').value, 10);
+  gtag('event', 'addcalc_run', {
+   count: n,
+   minutes: m
+  });
+  if (isNaN(n)) {
+    alert('数値を入力してください');
+    return;
+  }
+
+  const now = new Date();
+  const future = new Date(now);
+  future.setMinutes(now.getMinutes() + n * m);
+
+  document.getElementById('outputNow').textContent = formatHMS(now);
+  document.getElementById('outputFuture').textContent = formatHMS(future);
+});
+</script>
+ <div id="footer"></div>
+
+ <script>
+ fetch("footer.html")
+   .then(res => res.text())
+   .then(data => {
+     document.getElementById("footer").innerHTML = data;
+   });
+</script>
+</body>
+</html>
