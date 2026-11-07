@@ -33,7 +33,14 @@ fetch("header.html")
 
 <main>
 
-  <h1>Timer</h1>
+  <div class="timer-title-bar">
+    <h1>Timer</h1>
+    <div class="view-switcher" role="group" aria-label="表示位置の切り替え">
+      <button type="button" class="view-btn" data-view="left" title="左端にスリム配置">◀ Left</button>
+      <button type="button" class="view-btn active" data-view="center" title="標準の中央配置">■ Center</button>
+      <button type="button" class="view-btn" data-view="right" title="右端にスリム配置">Right ▶</button>
+    </div>
+  </div>
 
   <p class="page-description">
     複数のカウントダウンタイマーや指定時刻タイマーを同時に管理できます。
@@ -139,13 +146,18 @@ fetch("header.html")
         </label>
 
         <label>
-          <input type="radio" name="volume" value="0.18" checked>
+          <input type="radio" name="volume" value="0.2" checked>
           🔉
         </label>
 
         <label>
-          <input type="radio" name="volume" value="0.42">
+          <input type="radio" name="volume" value="0.45">
           🔊
+        </label>
+
+        <label>
+          <input type="radio" name="volume" value="1.0">
+          📢
         </label>
 
       </div>
@@ -211,6 +223,16 @@ fetch("header.html")
 </main>
   
 <script>
+/* =========================
+   環境判定・ストレージキー設定
+   ・URLに '/labs/' が含まれる場合は Labs専用キーを使用
+   ・将来このコードが安定版へ反映された場合は自動で安定版キーに切り替わる
+========================= */
+const isLabs = window.location.pathname.includes('/labs/');
+const STORAGE_KEY_TIMERS = isLabs ? "labs_timers_v2" : "timers_v2";
+const STORAGE_KEY_VOLUME = isLabs ? "labs_timer_volume" : "timer_volume";
+const STORAGE_KEY_VIEW = isLabs ? "labs_timer_view_mode" : "timer_view_mode";
+
 let timerId = 0;
 let timers = [];
 let finishedOpen = false;
@@ -265,26 +287,36 @@ function beepAt(startTime) {
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
-  osc.type = "sine";
-  osc.frequency.value = 880;
+  // 三角波（triangle）：適度な倍音を含み、動画やBGMを抜けて聞き取りやすい音色
+  osc.type = "triangle";
+  // 人間の耳が感度高く聞き取りやすい周波数帯（約988Hz）
+  osc.frequency.value = 987.77;
 
   gain.gain.setValueAtTime(0.001, startTime);
 
-  gain.gain.exponentialRampToValueAtTime(
+  // 素早く立ち上げ
+  gain.gain.linearRampToValueAtTime(
     volume,
-    startTime + 0.01
+    startTime + 0.015
   );
 
+  // ピーク音量をキープして音圧をしっかり稼ぐ（埋もれ防止）
+  gain.gain.setValueAtTime(
+    volume,
+    startTime + 0.11
+  );
+
+  // 自然に減衰
   gain.gain.exponentialRampToValueAtTime(
     0.001,
-    startTime + 0.14
+    startTime + 0.17
   );
 
   osc.connect(gain);
   gain.connect(audioCtx.destination);
 
   osc.start(startTime);
-  osc.stop(startTime + 0.15);
+  osc.stop(startTime + 0.18);
 }
 
 function playBeepTwice() {
@@ -294,7 +326,7 @@ function playBeepTwice() {
   const now = audioCtx.currentTime;
 
   beepAt(now);
-  beepAt(now + 0.18);
+  beepAt(now + 0.22);
 }
 
 /* =========================
@@ -356,7 +388,7 @@ function saveVolumeSetting() {
   if (!selected) return;
 
   localStorage.setItem(
-    "timer_volume",
+    STORAGE_KEY_VOLUME,
     selected.value
   );
 }
@@ -364,14 +396,21 @@ function saveVolumeSetting() {
 function loadVolumeSetting() {
 
   const saved =
-    localStorage.getItem("timer_volume");
+    localStorage.getItem(STORAGE_KEY_VOLUME);
 
   if (!saved) return;
 
-  const target =
+  let target =
     document.querySelector(
       `input[name="volume"][value="${saved}"]`
     );
+
+  // 旧バージョンで保存された値との互換性
+  if (!target) {
+    if (saved === "0.18") target = document.querySelector('input[name="volume"][value="0.2"]');
+    if (saved === "0.42") target = document.querySelector('input[name="volume"][value="0.45"]');
+    if (saved === "0.85") target = document.querySelector('input[name="volume"][value="1.0"]');
+  }
 
   if (target) {
     target.checked = true;
@@ -641,7 +680,7 @@ function saveTimers() {
     }));
 
   localStorage.setItem(
-    "timers_v2",
+    STORAGE_KEY_TIMERS,
     JSON.stringify(saveData)
   );
 }
@@ -649,7 +688,7 @@ function saveTimers() {
 function loadTimers() {
 
   const data =
-    localStorage.getItem("timers_v2");
+    localStorage.getItem(STORAGE_KEY_TIMERS);
 
   if (!data) return;
 
@@ -787,10 +826,6 @@ function removeTimer(id) {
 
   if (i === -1) return;
 
-  if (timers[i].interval) {
-    clearInterval(timers[i].interval);
-  }
-
   timers.splice(i, 1);
 
   saveTimers();
@@ -812,18 +847,10 @@ document
       return;
     }
 
-    timers.forEach(t => {
-
-      if (t.interval) {
-        clearInterval(t.interval);
-      }
-
-    });
-
     timers = [];
     timerId = 0;
 
-    localStorage.removeItem("timers_v2");
+    localStorage.removeItem(STORAGE_KEY_TIMERS);
 
     renderTimers();
 });
@@ -855,15 +882,6 @@ document
    描画
 ========================= */
 function renderTimers() {
-
-  timers.forEach(t => {
-
-    if (t.interval) {
-
-      clearInterval(t.interval);
-      t.interval = null;
-    }
-  });
 
   const now = Date.now();
 
@@ -923,6 +941,7 @@ function drawList(id, list) {
     document.getElementById(id);
 
   ul.innerHTML = "";
+  const now = Date.now();
 
   list.forEach(t => {
 
@@ -931,11 +950,17 @@ function drawList(id, list) {
 
     li.className =
       "timer-item compact-timer-item";
+    li.setAttribute("data-timer-id", t.id);
 
     const labelDisplay =
       t.labelType === "text"
         ? `【${t.labelText}】`
         : t.labelText;
+
+    const diff = t.target - now;
+    const remainText = diff <= 0
+      ? "(終了)"
+      : "(残り: " + formatTime(Math.floor(diff / 1000)) + ")";
 
     li.innerHTML = `
       <span class="timer-label">
@@ -947,7 +972,7 @@ function drawList(id, list) {
       </span>
 
       <span class="remain">
-        (残り: 計算中...)
+        ${remainText}
       </span>
 
       <button
@@ -961,60 +986,154 @@ function drawList(id, list) {
     `;
 
     ul.appendChild(li);
+  });
+}
 
-    const remain =
-      li.querySelector(".remain");
+/* =========================
+   毎秒のタイマー更新（集中ティッカー）
+========================= */
+function onTick() {
 
-    function update() {
+  const now = Date.now();
+  let needReorder = false;
 
-      const diff =
-        t.target - Date.now();
+  timers.forEach(t => {
 
-      if (diff <= 0) {
+    const diff = t.target - now;
 
-        clearInterval(t.interval);
+    if (diff <= 0) {
 
-        t.interval = null;
+      if (t.completed !== true) {
 
-        remain.textContent =
-          "(終了)";
+        t.completed = true;
+        saveTimers();
 
-        if (t.completed !== true) {
-
-          t.completed = true;
-
-          saveTimers();
-
-          if (getVolumeLevel() > 0) {
-            playBeepTwice();
-          }
-
-          if (typeof gtag === "function") {
-            gtag("event", "timer_complete");
-          }
+        if (getVolumeLevel() > 0) {
+          initAudio();
+          playBeepTwice();
         }
 
-        return;
-      }
+        if (typeof gtag === "function") {
+          gtag("event", "timer_complete");
+        }
 
-      remain.textContent =
-        "(残り: "
-        + formatTime(
-            Math.floor(diff / 1000)
-          )
-        + ")";
+        needReorder = true;
+      }
     }
 
-    update();
+    if (!t.endGraceUntil && diff <= 0) {
+      t.endGraceUntil = t.target + 5 * 60 * 1000;
+    }
 
-    t.interval =
-      setInterval(update, 1000);
+    if (t.endGraceUntil && now > t.endGraceUntil) {
+      needReorder = true;
+    }
+
+    const remainEl =
+      document.querySelector(`[data-timer-id="${t.id}"] .remain`);
+
+    if (remainEl) {
+      if (diff <= 0) {
+        remainEl.textContent = "(終了)";
+      } else {
+        remainEl.textContent =
+          "(残り: " + formatTime(Math.floor(diff / 1000)) + ")";
+      }
+    }
+  });
+
+  if (needReorder) {
+    renderTimers();
+  }
+}
+
+/* =========================
+   Web Worker（バックグラウンド遅延解消）
+========================= */
+let timerWorker = null;
+
+function initWorker() {
+
+  try {
+
+    const workerCode = `
+      let timer = null;
+      self.onmessage = function(e) {
+        if (e.data === "start") {
+          if (!timer) {
+            timer = setInterval(() => self.postMessage("tick"), 1000);
+          }
+        } else if (e.data === "stop") {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+        }
+      };
+    `;
+
+    const blob = new Blob([workerCode], { type: "application/javascript" });
+    timerWorker = new Worker(URL.createObjectURL(blob));
+
+    timerWorker.onmessage = function(e) {
+      if (e.data === "tick") {
+        onTick();
+      }
+    };
+
+    timerWorker.postMessage("start");
+
+  } catch(e) {
+
+    console.warn("Web Worker unavailable, falling back to setInterval", e);
+    setInterval(onTick, 1000);
+  }
+}
+
+/* タブ復帰時のリフレッシュ */
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    initAudio();
+    renderTimers();
+  }
+});
+
+/* =========================
+   ビュー切り替え（左右寄せ・スリム表示）
+========================= */
+function setViewMode(mode) {
+  const mainEl = document.querySelector("main");
+  if (!mainEl) return;
+
+  mainEl.classList.remove("view-left", "view-right", "view-center");
+  mainEl.classList.add(`view-${mode}`);
+
+  document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-view") === mode);
+  });
+
+  try {
+    localStorage.setItem(STORAGE_KEY_VIEW, mode);
+  } catch(e) {}
+}
+
+function initViewMode() {
+  const saved = localStorage.getItem(STORAGE_KEY_VIEW) || "center";
+  setViewMode(saved);
+
+  document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const mode = btn.getAttribute("data-view");
+      setViewMode(mode);
+    });
   });
 }
 
 /* =========================
    初期化
 ========================= */
+initViewMode();
+
 loadTimers();
 
 loadVolumeSetting();
@@ -1027,7 +1146,7 @@ updateTestButtonState();
 
 renderTimers();
 
-setInterval(renderTimers, 10000);
+initWorker();
 </script>
 
 <!-- footer -->

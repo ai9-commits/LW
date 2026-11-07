@@ -36,6 +36,35 @@ fetch("header.html")
 
 <section class="tool-section">
   <div class="section-header">
+    <h2>2026.11.08 — タイマー機能強化の通常版（安定版）反映</h2>
+  </div>
+
+  <div class="form-row" style="display:block; line-height: 1.8;">
+    <p>
+      DOUGU Labs で先行検証を行っていたタイマー（<a href="timer.html"><strong>Timer</strong></a>）の強化機能を、通常版（安定版）へ反映しました。
+    </p>
+
+    <h3 style="margin-top: 1.2em;">📐 Left / Right View 切り替え機能（左右スリム配置）</h3>
+    <ul>
+      <li>別アプリやウィンドウと並行して作業しやすいよう、「◀ Left」「■ Center」「Right ▶」の表示切り替えに対応しました。</li>
+      <li>画面端の隙間に最大320pxのスリム幅でタイマーを配置でき、情報をコンパクトな2段構成で確認できます。</li>
+      <li>選択した表示位置は自動保存され、次回利用時も維持されます。</li>
+    </ul>
+
+    <h3 style="margin-top: 1.2em;">⏱️ バックグラウンド遅延の解消（Web Worker 導入）</h3>
+    <ul>
+      <li>Web Worker による正確なカウントダウン処理を導入しました。別タブで動画を再生中などでもブラウザの省電力機能による遅延を防ぎ、時間ぴったりにアラームが鳴ります。</li>
+    </ul>
+
+    <h3 style="margin-top: 1.2em;">🔊 アラーム音響の強化 &amp; 特大音量</h3>
+    <ul>
+      <li>聞き取りやすい三角波（倍音強化）への音色刷新、音圧（サステイン持続）の向上、および「📢 特大（1.0）」音量を追加しました。</li>
+    </ul>
+  </div>
+</section>
+
+<section class="tool-section">
+  <div class="section-header">
     <h2>2026.10.25 — DOUGU Labs 開設 &amp; タイマー機能強化</h2>
   </div>
 
