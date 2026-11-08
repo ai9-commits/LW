@@ -996,6 +996,7 @@ function onTick() {
 
   const now = Date.now();
   let needReorder = false;
+  const completedNow = [];
 
   timers.forEach(t => {
 
@@ -1007,6 +1008,7 @@ function onTick() {
 
         t.completed = true;
         saveTimers();
+        completedNow.push(t.id);
 
         if (getVolumeLevel() > 0) {
           initAudio();
@@ -1045,6 +1047,19 @@ function onTick() {
   if (needReorder) {
     renderTimers();
   }
+
+  completedNow.forEach(id => {
+    const item = document.querySelector(
+      `[data-timer-id="${id}"]`
+    );
+
+    if (!item) return;
+
+    item.classList.add("timer-complete-notice");
+    setTimeout(() => {
+      item.classList.remove("timer-complete-notice");
+    }, 1300);
+  });
 }
 
 /* =========================
