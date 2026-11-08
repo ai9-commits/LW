@@ -201,6 +201,15 @@ fetch("header.html")
   </section>
 
 
+  <div
+    id="timerLiveRegion"
+    class="sr-only"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true">
+  </div>
+
+
 
   <!-- Completed timers -->
   <section class="tool-section">
@@ -1008,7 +1017,12 @@ function onTick() {
 
         t.completed = true;
         saveTimers();
-        completedNow.push(t.id);
+        completedNow.push({
+          id: t.id,
+          label: t.labelType === "text"
+            ? `【${t.labelText}】`
+            : t.labelText
+        });
 
         if (getVolumeLevel() > 0) {
           initAudio();
@@ -1048,7 +1062,7 @@ function onTick() {
     renderTimers();
   }
 
-  completedNow.forEach(id => {
+  completedNow.forEach(({ id }) => {
     const item = document.querySelector(
       `[data-timer-id="${id}"]`
     );
@@ -1060,6 +1074,18 @@ function onTick() {
       item.classList.remove("timer-complete-notice");
     }, 1300);
   });
+
+  if (completedNow.length > 0) {
+    const liveRegion = document.getElementById("timerLiveRegion");
+    const labels = completedNow
+      .map(({ id, label }) => `#${formatTimerId(id)} ${label}`)
+      .join("、");
+
+    liveRegion.textContent = "";
+    setTimeout(() => {
+      liveRegion.textContent = `タイマー終了：${labels}`;
+    }, 100);
+  }
 }
 
 /* =========================
