@@ -18,6 +18,9 @@
 
   --notify-bg: #ffefc1;
   --notify-border: #e0c060;
+
+  --timer-flash-glow: rgba(245, 158, 11, 0.95);
+  --timer-flash-bg: rgba(245, 158, 11, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,6 +41,9 @@
 
     --notify-bg: #3a2f00;
     --notify-border: #806a00;
+
+    --timer-flash-glow: rgba(255, 214, 10, 0.9);
+    --timer-flash-bg: rgba(255, 214, 10, 0.1);
   }
 }
 
@@ -208,6 +214,44 @@ td.diff {
   animation: timer-complete-pulse 1.2s ease-in-out 1;
 }
 
+#timerViewportFlash {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 99999;
+  background-color: transparent;
+  box-shadow: inset 0 0 0 0 transparent;
+}
+
+#timerViewportFlash.timer-viewport-flash-active {
+  animation: timer-viewport-edge-flash 1.235s linear 1;
+}
+
+@keyframes timer-viewport-edge-flash {
+  0%,
+  1.21% {
+    background-color: var(--timer-flash-bg);
+    box-shadow: inset 0 0 40px 12px var(--timer-flash-glow);
+  }
+
+  8.10%,
+  17.81% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+
+  19.03% {
+    background-color: var(--timer-flash-bg);
+    box-shadow: inset 0 0 40px 12px var(--timer-flash-glow);
+  }
+
+  100% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .timer-complete-notice {
     animation: none;
@@ -301,6 +345,7 @@ td.diff {
 
 .timer-target {
   color: var(--subtext);
+  font-size: inherit;
   white-space: nowrap;
 }
 
@@ -972,7 +1017,7 @@ main.view-left .compact-timer-item .timer-label {
 
 main.view-left .compact-timer-item .timer-target {
   grid-area: target;
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   color: var(--subtext);
   justify-self: start;
   margin-left: 2px;
@@ -1050,7 +1095,7 @@ main.view-right .compact-timer-item .timer-label {
 
 main.view-right .compact-timer-item .timer-target {
   grid-area: target;
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   color: var(--subtext);
   margin-left: 4px;
   white-space: nowrap;
@@ -1064,6 +1109,12 @@ main.view-right .compact-timer-item .remain {
   font-weight: 600;
   white-space: nowrap;
   justify-self: end;
+}
+
+#timerList > .compact-timer-item:first-child .timer-label,
+#timerList > .compact-timer-item:first-child .timer-target,
+#timerList > .compact-timer-item:first-child .remain {
+  font-size: 1.05em;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -250,28 +250,81 @@ let finishedOpen = false;
    音声
 ========================= */
 let audioCtx = null;
+let audioResumePromise = null;
 
-function initAudio() {
-
+function getAudioContext() {
   try {
-
     const AC =
       window.AudioContext ||
       window.webkitAudioContext;
 
-    if (!audioCtx) {
+    if (!AC) return null;
+
+    if (!audioCtx || audioCtx.state === "closed") {
       audioCtx = new AC();
     }
 
-    if (audioCtx.state === "suspended") {
-      audioCtx.resume();
-    }
-
+    return audioCtx;
   } catch(e) {
-
-    console.log("audio unavailable");
+    return null;
   }
 }
+
+function resumeAudioContext(force = false) {
+  const context = getAudioContext();
+
+  if (!context) return Promise.resolve(false);
+  if (context.state === "running") return Promise.resolve(true);
+  if (context.state === "closed") return Promise.resolve(false);
+  if (audioResumePromise && !force) return audioResumePromise;
+
+  try {
+    const resumePromise = Promise.resolve(context.resume())
+      .then(() => context.state === "running")
+      .catch(() => false)
+      .then(resumed => {
+        if (audioResumePromise === resumePromise) {
+          audioResumePromise = null;
+        }
+        return resumed;
+      });
+
+    audioResumePromise = resumePromise;
+    return audioResumePromise;
+  } catch(e) {
+    audioResumePromise = null;
+    return Promise.resolve(false);
+  }
+}
+
+function initAudio() {
+  const context = getAudioContext();
+
+  if (context && context.state !== "running") {
+    void resumeAudioContext();
+  }
+
+  return context;
+}
+
+function unlockAudioFromGesture() {
+  const context = getAudioContext();
+
+  if (context && context.state !== "running") {
+    void resumeAudioContext(true);
+  }
+}
+
+document.addEventListener(
+  "touchstart",
+  unlockAudioFromGesture,
+  { capture: true, passive: true }
+);
+document.addEventListener(
+  "click",
+  unlockAudioFromGesture,
+  true
+);
 
 function getVolumeLevel() {
 
@@ -287,55 +340,71 @@ function getVolumeLevel() {
 
 function beepAt(startTime) {
 
-  if (!audioCtx) return;
+  try {
+    if (!audioCtx || audioCtx.state !== "running") return;
 
-  const volume = getVolumeLevel();
+    const volume = getVolumeLevel();
+    if (volume <= 0) return;
 
-  if (volume <= 0) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
 
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
+    // 三角波（triangle）：適度な倍音を含み、動画やBGMを抜けて聞き取りやすい音色
+    osc.type = "triangle";
+    // 人間の耳が感度高く聞き取りやすい周波数帯（約988Hz）
+    osc.frequency.value = 987.77;
 
-  // 三角波（triangle）：適度な倍音を含み、動画やBGMを抜けて聞き取りやすい音色
-  osc.type = "triangle";
-  // 人間の耳が感度高く聞き取りやすい周波数帯（約988Hz）
-  osc.frequency.value = 987.77;
+    gain.gain.setValueAtTime(0.001, startTime);
+    gain.gain.linearRampToValueAtTime(volume, startTime + 0.015);
+    gain.gain.setValueAtTime(volume, startTime + 0.11);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.17);
 
-  gain.gain.setValueAtTime(0.001, startTime);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
 
-  // 素早く立ち上げ
-  gain.gain.linearRampToValueAtTime(
-    volume,
-    startTime + 0.015
-  );
-
-  // ピーク音量をキープして音圧をしっかり稼ぐ（埋もれ防止）
-  gain.gain.setValueAtTime(
-    volume,
-    startTime + 0.11
-  );
-
-  // 自然に減衰
-  gain.gain.exponentialRampToValueAtTime(
-    0.001,
-    startTime + 0.17
-  );
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.start(startTime);
-  osc.stop(startTime + 0.18);
+    osc.start(startTime);
+    osc.stop(startTime + 0.18);
+  } catch(e) {
+    // 音声再生に失敗してもタイマー処理は継続する
+  }
 }
 
-function playBeepTwice() {
+function playBeepTwice(onScheduled) {
+  const scheduleBeeps = () => {
+    try {
+      const context = getAudioContext();
+      if (!context || context.state !== "running") return false;
 
-  if (!audioCtx) return;
+      const now = context.currentTime;
+      beepAt(now);
+      beepAt(now + 0.22);
+      return true;
+    } catch(e) {
+      return false;
+    }
+  };
 
-  const now = audioCtx.currentTime;
+  const finish = resumed => {
+    const scheduled = resumed && scheduleBeeps();
 
-  beepAt(now);
-  beepAt(now + 0.22);
+    // 音声が使えない場合も、終了時の視覚通知は表示する
+    if (typeof onScheduled === "function") {
+      onScheduled();
+    }
+
+    return scheduled;
+  };
+
+  const context = getAudioContext();
+
+  if (context && context.state === "running") {
+    finish(true);
+    return;
+  }
+
+  void resumeAudioContext()
+    .then(finish)
+    .catch(() => finish(false));
 }
 
 /* =========================
@@ -1001,6 +1070,15 @@ function drawList(id, list) {
 /* =========================
    毎秒のタイマー更新（集中ティッカー）
 ========================= */
+function triggerViewportFlash() {
+  const overlay = document.getElementById("timerViewportFlash");
+  if (!overlay) return;
+
+  overlay.classList.remove("timer-viewport-flash-active");
+  void overlay.offsetWidth;
+  overlay.classList.add("timer-viewport-flash-active");
+}
+
 function onTick() {
 
   const now = Date.now();
@@ -1025,8 +1103,9 @@ function onTick() {
         });
 
         if (getVolumeLevel() > 0) {
-          initAudio();
-          playBeepTwice();
+          playBeepTwice(triggerViewportFlash);
+        } else {
+          triggerViewportFlash();
         }
 
         if (typeof gtag === "function") {
@@ -1134,7 +1213,7 @@ function initWorker() {
 /* タブ復帰時のリフレッシュ */
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") {
-    initAudio();
+    void resumeAudioContext();
     renderTimers();
   }
 });
@@ -1200,6 +1279,8 @@ fetch("footer.html")
     document.getElementById("footer").innerHTML = data;
   });
 </script>
+
+<div id="timerViewportFlash" aria-hidden="true"></div>
 
 </body>
 </html>
