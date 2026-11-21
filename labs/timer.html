@@ -111,6 +111,11 @@ fetch("header.html")
         時刻
       </label>
 
+      <label title="繰り返し">
+        <input type="radio" name="mode" value="repeat" aria-label="繰り返し">
+        <span aria-hidden="true">🔁</span>
+      </label>
+
       <input
         type="text"
         id="timeInput"
@@ -118,6 +123,15 @@ fetch("header.html")
         inputmode="numeric"
         class="time-input">
 
+    </div>
+
+    <div id="repeatStartRow" class="form-row compact-row repeat-start-row" hidden>
+      <input
+        type="time"
+        id="repeatStartInput"
+        class="time-input repeat-start-input"
+        step="1"
+        aria-label="繰り返し開始時刻。未入力ならすぐに開始">
     </div>
 
 
@@ -369,7 +383,15 @@ function beepAt(startTime) {
   }
 }
 
+function playBeepOnce(onScheduled) {
+  playBeepPattern(false, onScheduled);
+}
+
 function playBeepTwice(onScheduled) {
+  playBeepPattern(true, onScheduled);
+}
+
+function playBeepPattern(double, onScheduled) {
   const scheduleBeeps = () => {
     try {
       const context = getAudioContext();
@@ -377,7 +399,9 @@ function playBeepTwice(onScheduled) {
 
       const now = context.currentTime;
       beepAt(now);
-      beepAt(now + 0.22);
+      if (double) {
+        beepAt(now + 0.22);
+      }
       return true;
     } catch(e) {
       return false;
@@ -701,11 +725,15 @@ timeInput.addEventListener(
 function updateModeUI() {
 
   const mode = getMode();
+  const repeatMode = mode === "repeat";
+  const repeatStartRow = document.getElementById("repeatStartRow");
 
-  if (mode === "duration") {
+  if (mode === "duration" || repeatMode) {
 
     timeInput.placeholder =
-      "15:30 / 1530 / 00:15:30";
+      repeatMode
+        ? "00:05:00"
+        : "15:30 / 1530 / 00:15:30";
 
   } else {
 
@@ -713,7 +741,18 @@ function updateModeUI() {
       "183015 / 18:30:15";
   }
 
+  timeInput.setAttribute(
+    "aria-label",
+    repeatMode
+      ? "繰り返し間隔"
+      : mode === "target"
+        ? "指定時刻"
+        : "残り時間"
+  );
+
+  repeatStartRow.hidden = !repeatMode;
   timeInput.value = "";
+  document.getElementById("repeatStartInput").value = "";
 }
 
 document
@@ -730,7 +769,7 @@ document
 /* blur整形 */
 timeInput.addEventListener("blur", () => {
 
-  if (getMode() !== "duration") {
+  if (getMode() !== "duration" && getMode() !== "repeat") {
     return;
   }
 
@@ -754,7 +793,9 @@ function saveTimers() {
       labelText: t.labelText,
       target: t.target,
       completed: t.completed,
-      endGraceUntil: t.endGraceUntil
+      endGraceUntil: t.endGraceUntil,
+      repeat: t.repeat === true,
+      repeatIntervalSeconds: t.repeatIntervalSeconds || null
     }));
 
   localStorage.setItem(
@@ -776,14 +817,40 @@ function loadTimers() {
   const now = Date.now();
 
   timers = loaded
-    .filter(t =>
-      now <= t.target + 5 * 60 * 1000 &&
-      t.completed !== true
-    )
-    .map(t => ({
-      ...t,
-      interval: null
-    }));
+    .filter(t => {
+      const repeatInterval = Number(t.repeatIntervalSeconds);
+      const isRepeating =
+        t.repeat === true &&
+        Number.isFinite(repeatInterval) &&
+        repeatInterval > 0;
+
+      return isRepeating || (
+        now <= t.target + 5 * 60 * 1000 &&
+        t.completed !== true
+      );
+    })
+    .map(t => {
+      const timer = {
+        ...t,
+        interval: null
+      };
+
+      if (timer.repeat === true) {
+        const repeatInterval = Number(timer.repeatIntervalSeconds) * 1000;
+
+        if (timer.target <= now) {
+          const missedIntervals =
+            Math.floor((now - timer.target) / repeatInterval) + 1;
+
+          timer.target += missedIntervals * repeatInterval;
+        }
+
+        timer.completed = false;
+        timer.endGraceUntil = null;
+      }
+
+      return timer;
+    });
 
   timerId =
     timers.reduce(
@@ -826,11 +893,13 @@ function addTimer() {
     timeInput.value.trim();
 
   const mode = getMode();
+  const isRepeating = mode === "repeat";
 
   let target;
   let secForLog = 0;
+  let repeatIntervalSeconds = null;
 
-  if (mode === "duration") {
+  if (mode === "duration" || isRepeating) {
 
     const sec =
       parseTimeFlexible(input);
@@ -841,8 +910,25 @@ function addTimer() {
       return;
     }
 
-    target =
-      Date.now() + sec * 1000;
+    if (isRepeating) {
+      repeatIntervalSeconds = sec;
+
+      const repeatStartTime =
+        document.getElementById("repeatStartInput").value;
+
+      if (repeatStartTime) {
+        target = parseTargetTime(repeatStartTime);
+
+        if (!target) {
+          alert("開始時刻が不正です");
+          return;
+        }
+      } else {
+        target = Date.now() + sec * 1000;
+      }
+    } else {
+      target = Date.now() + sec * 1000;
+    }
 
     secForLog = sec;
 
@@ -878,13 +964,16 @@ function addTimer() {
     target,
     interval: null,
     endGraceUntil: null,
-    completed: false
+    completed: false,
+    repeat: isRepeating,
+    repeatIntervalSeconds
   });
 
   saveTimers();
   renderTimers();
 
   timeInput.value = "";
+  document.getElementById("repeatStartInput").value = "";
   timeInput.focus();
 }
 
@@ -1027,7 +1116,7 @@ function drawList(id, list) {
       document.createElement("li");
 
     li.className =
-      "timer-item compact-timer-item";
+      `timer-item compact-timer-item${t.repeat === true ? " repeat-timer-item" : ""}`;
     li.setAttribute("data-timer-id", t.id);
 
     const labelDisplay =
@@ -1042,6 +1131,7 @@ function drawList(id, list) {
 
     li.innerHTML = `
       <span class="timer-label">
+        ${t.repeat === true ? '<span class="repeat-marker" aria-hidden="true">🔁</span>' : ""}
         #${formatTimerId(t.id)} ${labelDisplay}
       </span>
 
@@ -1070,12 +1160,20 @@ function drawList(id, list) {
 /* =========================
    毎秒のタイマー更新（集中ティッカー）
 ========================= */
-function triggerViewportFlash() {
+function triggerViewportFlash(type = "standard") {
   const overlay = document.getElementById("timerViewportFlash");
   if (!overlay) return;
 
-  overlay.classList.remove("timer-viewport-flash-active");
+  overlay.classList.remove(
+    "timer-viewport-flash-active",
+    "timer-viewport-flash-repeat"
+  );
   void overlay.offsetWidth;
+
+  if (type === "repeat") {
+    overlay.classList.add("timer-viewport-flash-repeat");
+  }
+
   overlay.classList.add("timer-viewport-flash-active");
 }
 
@@ -1088,24 +1186,44 @@ function onTick() {
   timers.forEach(t => {
 
     const diff = t.target - now;
+    const repeatIntervalMs = Number(t.repeatIntervalSeconds) * 1000;
+    const isRepeating =
+      t.repeat === true &&
+      Number.isFinite(repeatIntervalMs) &&
+      repeatIntervalMs > 0;
 
     if (diff <= 0) {
 
       if (t.completed !== true) {
 
-        t.completed = true;
+        if (isRepeating) {
+          const missedIntervals =
+            Math.floor(Math.max(0, now - t.target) / repeatIntervalMs) + 1;
+
+          t.target += missedIntervals * repeatIntervalMs;
+          t.completed = false;
+          t.endGraceUntil = null;
+        } else {
+          t.completed = true;
+        }
+
         saveTimers();
         completedNow.push({
           id: t.id,
+          repeat: isRepeating,
           label: t.labelType === "text"
             ? `【${t.labelText}】`
             : t.labelText
         });
 
         if (getVolumeLevel() > 0) {
-          playBeepTwice(triggerViewportFlash);
+          if (isRepeating) {
+            playBeepOnce(() => triggerViewportFlash("repeat"));
+          } else {
+            playBeepTwice(() => triggerViewportFlash("standard"));
+          }
         } else {
-          triggerViewportFlash();
+          triggerViewportFlash(isRepeating ? "repeat" : "standard");
         }
 
         if (typeof gtag === "function") {
@@ -1116,11 +1234,11 @@ function onTick() {
       }
     }
 
-    if (!t.endGraceUntil && diff <= 0) {
+    if (!isRepeating && !t.endGraceUntil && diff <= 0) {
       t.endGraceUntil = t.target + 5 * 60 * 1000;
     }
 
-    if (t.endGraceUntil && now > t.endGraceUntil) {
+    if (!isRepeating && t.endGraceUntil && now > t.endGraceUntil) {
       needReorder = true;
     }
 
@@ -1141,28 +1259,38 @@ function onTick() {
     renderTimers();
   }
 
-  completedNow.forEach(({ id }) => {
+  completedNow.forEach(({ id, repeat }) => {
     const item = document.querySelector(
       `[data-timer-id="${id}"]`
     );
 
     if (!item) return;
 
-    item.classList.add("timer-complete-notice");
+    item.classList.add(
+      repeat
+        ? "timer-repeat-notice"
+        : "timer-complete-notice"
+    );
     setTimeout(() => {
-      item.classList.remove("timer-complete-notice");
-    }, 1300);
+      item.classList.remove(
+        repeat
+          ? "timer-repeat-notice"
+          : "timer-complete-notice"
+      );
+    }, repeat ? 1100 : 1300);
   });
 
   if (completedNow.length > 0) {
     const liveRegion = document.getElementById("timerLiveRegion");
     const labels = completedNow
-      .map(({ id, label }) => `#${formatTimerId(id)} ${label}`)
+      .map(({ id, label, repeat }) =>
+        `${repeat ? "繰り返しタイマー" : "タイマー終了"}：#${formatTimerId(id)} ${label}`
+      )
       .join("、");
 
     liveRegion.textContent = "";
     setTimeout(() => {
-      liveRegion.textContent = `タイマー終了：${labels}`;
+      liveRegion.textContent = labels;
     }, 100);
   }
 }

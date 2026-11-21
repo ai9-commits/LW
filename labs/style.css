@@ -21,6 +21,9 @@
 
   --timer-flash-glow: rgba(245, 158, 11, 0.95);
   --timer-flash-bg: rgba(245, 158, 11, 0.12);
+  --timer-repeat-border: #3b82f6;
+  --timer-repeat-flash-glow: rgba(59, 130, 246, 0.95);
+  --timer-repeat-flash-bg: rgba(59, 130, 246, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -44,6 +47,9 @@
 
     --timer-flash-glow: rgba(255, 214, 10, 0.9);
     --timer-flash-bg: rgba(255, 214, 10, 0.1);
+    --timer-repeat-border: #60a5fa;
+    --timer-repeat-flash-glow: rgba(96, 165, 250, 0.95);
+    --timer-repeat-flash-bg: rgba(96, 165, 250, 0.12);
   }
 }
 
@@ -214,6 +220,24 @@ td.diff {
   animation: timer-complete-pulse 1.2s ease-in-out 1;
 }
 
+@keyframes timer-repeat-pulse {
+  0%,
+  100% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+
+  25%,
+  75% {
+    background-color: var(--timer-repeat-flash-bg);
+    box-shadow: inset 0 0 0 2px var(--timer-repeat-border);
+  }
+}
+
+.timer-repeat-notice {
+  animation: timer-repeat-pulse 1s ease-in-out 1;
+}
+
 #timerViewportFlash {
   position: fixed;
   inset: 0;
@@ -226,6 +250,15 @@ td.diff {
 
 #timerViewportFlash.timer-viewport-flash-active {
   animation: timer-viewport-edge-flash 1.235s linear 1;
+}
+
+#timerViewportFlash.timer-viewport-flash-repeat {
+  --timer-flash-glow: var(--timer-repeat-flash-glow);
+  --timer-flash-bg: var(--timer-repeat-flash-bg);
+}
+
+#timerViewportFlash.timer-viewport-flash-repeat.timer-viewport-flash-active {
+  animation: timer-viewport-edge-flash-single 1.015s linear 1;
 }
 
 @keyframes timer-viewport-edge-flash {
@@ -252,11 +285,33 @@ td.diff {
   }
 }
 
+@keyframes timer-viewport-edge-flash-single {
+  0%,
+  1.48% {
+    background-color: var(--timer-flash-bg);
+    box-shadow: inset 0 0 40px 12px var(--timer-flash-glow);
+  }
+
+  100% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .timer-complete-notice {
+  .timer-complete-notice,
+  .timer-repeat-notice {
     animation: none;
+  }
+
+  .timer-complete-notice {
     background-color: var(--notify-bg);
     box-shadow: inset 0 0 0 2px var(--notify-border);
+  }
+
+  .timer-repeat-notice {
+    background-color: var(--timer-repeat-flash-bg);
+    box-shadow: inset 0 0 0 2px var(--timer-repeat-border);
   }
 }
 
@@ -336,6 +391,18 @@ td.diff {
   background: var(--card);
   border-radius: 8px;
   padding: 6px 8px;
+}
+
+.compact-timer-item.repeat-timer-item {
+  border: 1px solid var(--timer-repeat-border);
+}
+
+.repeat-marker {
+  margin-right: 0.2em;
+}
+
+.repeat-start-row[hidden] {
+  display: none;
 }
 
 .timer-label {
