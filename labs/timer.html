@@ -127,10 +127,12 @@ fetch("header.html")
 
     <div id="repeatStartRow" class="form-row compact-row repeat-start-row" hidden>
       <input
-        type="time"
+        type="text"
         id="repeatStartInput"
         class="time-input repeat-start-input"
-        step="1"
+        placeholder="開始時刻（省略可）"
+        inputmode="text"
+        autocomplete="off"
         aria-label="繰り返し開始時刻。未入力ならすぐに開始">
     </div>
 
