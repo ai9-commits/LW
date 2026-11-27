@@ -288,7 +288,7 @@ td.diff {
 .timer-viewport-flash-edge-left,
 .timer-viewport-flash-edge-right {
   top: 12px;
-  bottom: 0;
+  bottom: -24px;
   width: 48px;
 }
 

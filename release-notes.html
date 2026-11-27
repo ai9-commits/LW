@@ -36,66 +36,11 @@ fetch("header.html")
 
 <section class="tool-section">
   <div class="section-header">
-    <h2>2026.11.28 — Labsタイマーの左右発光の下端を緩やかに調整</h2>
+    <h2>2026.11.28 — Labsタイマーの終了エフェクトを調整</h2>
   </div>
   <div class="form-row" style="display:block; line-height: 1.8;">
     <p>
-      <a href="labs/timer.html"><strong>DOUGU Labs のTimer</strong></a>の左右のグラデーション帯を、下端の24pxだけ少し弱めるようにしました。下端まで表示された場合も発光を残し、途切れて見える際の境目をやわらげます。
-    </p>
-  </div>
-</section>
-
-<section class="tool-section">
-  <div class="section-header">
-    <h2>2026.11.28 — Labsタイマーの左右発光を下端まで延長</h2>
-  </div>
-  <div class="form-row" style="display:block; line-height: 1.8;">
-    <p>
-      <a href="labs/timer.html"><strong>DOUGU Labs のTimer</strong></a>の左右の縦帯を画面の下端まで伸ばしました。下辺の帯は表示せず、左右だけのグラデーション表示を維持します。
-    </p>
-  </div>
-</section>
-
-<section class="tool-section">
-  <div class="section-header">
-    <h2>2026.11.28 — Labsタイマーの左右発光をグラデーションに変更</h2>
-  </div>
-  <div class="form-row" style="display:block; line-height: 1.8;">
-    <p>
-      <a href="labs/timer.html"><strong>DOUGU Labs のTimer</strong></a>の左右の終了エフェクトを、縁から内側へ薄くなるグラデーション表示にしました。iPad Safariに古いスタイルが残らないよう、スタイルシートの読み込み先も更新しました。
-    </p>
-  </div>
-</section>
-
-<section class="tool-section">
-  <div class="section-header">
-    <h2>2026.11.28 — Labsタイマーの発光を左右のみに変更</h2>
-  </div>
-  <div class="form-row" style="display:block; line-height: 1.8;">
-    <p>
-      <a href="labs/timer.html"><strong>DOUGU Labs のTimer</strong></a>の終了演出を左右の縦帯だけに変更しました。上辺・下辺の帯と画面全体に広がる影を使わず、iPadで画面下部に見えるレイヤーの解消を図りました。
-    </p>
-  </div>
-</section>
-
-<section class="tool-section">
-  <div class="section-header">
-    <h2>2026.11.28 — Labsタイマーの画面下部エフェクトを抑制</h2>
-  </div>
-  <div class="form-row" style="display:block; line-height: 1.8;">
-    <p>
-      <a href="labs/timer.html"><strong>DOUGU Labs のTimer</strong></a>で、終了時の画面下辺の発光をなくし、左右の発光も下端の手前で止めるようにしました。画面全体に広がる影を取り除き、iPadで画面下部にレイヤーが見える問題の改善を図りました。
-    </p>
-  </div>
-</section>
-
-<section class="tool-section">
-  <div class="section-header">
-    <h2>2026.11.28 — LabsタイマーのiPad表示を改善</h2>
-  </div>
-  <div class="form-row" style="display:block; line-height: 1.8;">
-    <p>
-      <a href="labs/timer.html"><strong>DOUGU Labs のTimer</strong></a>で、画面発光用のレイヤーを演出中だけ生成し、終了後に削除するよう変更しました。色の表示を画面全体から4辺の帯に限定し、iPadでソフトウェアキーボードを表示した際に不要なレイヤーが残る問題の改善を図りました。
+      <a href="labs/timer.html"><strong>DOUGU Labs のTimer</strong></a>の終了時は左右の縦帯だけがグラデーション発光します。画面全体を覆う影は使わず、演出後にレイヤーを削除します。画面下端の表示ずれを補うため、左右の帯を下端より少し延長しました。
     </p>
   </div>
 </section>
