@@ -273,6 +273,16 @@ td.diff {
   display: block;
   pointer-events: none;
   opacity: 0;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - 24px),
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 calc(100% - 24px),
+    rgba(0, 0, 0, 0.55) 100%
+  );
 }
 
 .timer-viewport-flash-edge-left,
