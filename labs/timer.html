@@ -1163,8 +1163,28 @@ function drawList(id, list) {
    毎秒のタイマー更新（集中ティッカー）
 ========================= */
 function triggerViewportFlash(type = "standard") {
-  const overlay = document.getElementById("timerViewportFlash");
-  if (!overlay) return;
+  let overlay = document.getElementById("timerViewportFlash");
+
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "timerViewportFlash";
+    overlay.setAttribute("aria-hidden", "true");
+
+    ["top", "right", "bottom", "left"].forEach(edge => {
+      const edgeElement = document.createElement("span");
+      edgeElement.className = `timer-viewport-flash-edge timer-viewport-flash-edge-${edge}`;
+      overlay.appendChild(edgeElement);
+    });
+
+    overlay.addEventListener("animationend", event => {
+      if (event.target === overlay) {
+        clearTimeout(overlay.cleanupTimeout);
+        overlay.remove();
+      }
+    });
+
+    document.body.appendChild(overlay);
+  }
 
   overlay.classList.remove(
     "timer-viewport-flash-active",
@@ -1177,6 +1197,10 @@ function triggerViewportFlash(type = "standard") {
   }
 
   overlay.classList.add("timer-viewport-flash-active");
+  clearTimeout(overlay.cleanupTimeout);
+  overlay.cleanupTimeout = setTimeout(() => {
+    overlay.remove();
+  }, type === "repeat" ? 1200 : 1420);
 }
 
 function onTick() {
@@ -1409,8 +1433,6 @@ fetch("footer.html")
     document.getElementById("footer").innerHTML = data;
   });
 </script>
-
-<div id="timerViewportFlash" aria-hidden="true"></div>
 
 </body>
 </html>
