@@ -276,24 +276,9 @@ td.diff {
   background-color: var(--timer-flash-bg);
 }
 
-.timer-viewport-flash-edge-top,
-.timer-viewport-flash-edge-bottom {
-  left: 0;
-  right: 0;
-  height: 12px;
-}
-
-.timer-viewport-flash-edge-top {
-  top: 0;
-}
-
-.timer-viewport-flash-edge-bottom {
-  bottom: 0;
-}
-
 .timer-viewport-flash-edge-left,
 .timer-viewport-flash-edge-right {
-  top: 0;
+  top: 12px;
   bottom: 12px;
   width: 12px;
 }

@@ -1170,7 +1170,7 @@ function triggerViewportFlash(type = "standard") {
     overlay.id = "timerViewportFlash";
     overlay.setAttribute("aria-hidden", "true");
 
-    ["top", "right", "left"].forEach(edge => {
+    ["right", "left"].forEach(edge => {
       const edgeElement = document.createElement("span");
       edgeElement.className = `timer-viewport-flash-edge timer-viewport-flash-edge-${edge}`;
       overlay.appendChild(edgeElement);
