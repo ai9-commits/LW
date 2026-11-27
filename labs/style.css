@@ -273,22 +273,23 @@ td.diff {
   display: block;
   pointer-events: none;
   opacity: 0;
-  background-color: var(--timer-flash-bg);
 }
 
 .timer-viewport-flash-edge-left,
 .timer-viewport-flash-edge-right {
   top: 12px;
   bottom: 12px;
-  width: 12px;
+  width: 48px;
 }
 
 .timer-viewport-flash-edge-left {
   left: 0;
+  background: linear-gradient(to right, var(--timer-flash-glow), transparent);
 }
 
 .timer-viewport-flash-edge-right {
   right: 0;
+  background: linear-gradient(to left, var(--timer-flash-glow), transparent);
 }
 
 @keyframes timer-viewport-edge-flash {
